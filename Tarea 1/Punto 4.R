@@ -139,7 +139,7 @@ f=function(x){
 plot(f,0,5)
 
 #Points simulation: you change n and sigma
-N=10000
+N=1000
 sigma=1.2
 x=runif(N,0,5);#x=sort(x)  #For convenience, the input x is sorted
 y=rep(0,times=N)
@@ -149,11 +149,11 @@ for(i in 1:N){
 plot(x,y)
 points(x,f(x),type="l",col=2,lwd=2)
 
-x_test = x[5001:N]
-y_test = y[5001:N]
+x_test = x[501:N]
+y_test = y[501:N]
 
-x_train =x[1:5000]
-y_train = y[1:5000]
+x_train =x[1:500]
+y_train = y[1:500]
 
 
 
