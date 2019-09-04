@@ -42,8 +42,6 @@ kn=function(k,test){
 }
 
 #Graficando el estimador
-
-
 for(k in 1:200){
   pred = kn(k,T)
   MSE[k] = mean((pred-y_test)^2)
@@ -127,6 +125,18 @@ which.min(MSE) # 16
 
 
 ##### c ##########  CV y LOO
+N=400
+sigma=1.2
+x=runif(N,0,5);#x=sort(x)  #For convenience, the input x is sorted
+y=rep(0,times=N)
+for(i in 1:N){
+  y[i]=f(x[i])+rnorm(1,0,sigma)
+}
+plot(x,y)
+points(x,f(x),type="l",col=2,lwd=2)
+
+## CV
+
 
 
 

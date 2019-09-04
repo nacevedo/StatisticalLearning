@@ -103,5 +103,4 @@ mse_train[7]=mean((ytrain-pred7)^2)
 pred8 = predict(fit8, xtrain)
 mse_train[8]=mean((ytrain-pred8)^2)
 
-
 lines(mse_train)
