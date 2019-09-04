@@ -5,7 +5,7 @@ f=function(x){
 plot(f,0,5)
 
 #Points simulation: you change n and sigma
-N=400
+N=1000
 sigma=1.2
 x=runif(N,0,5);#x=sort(x)  #For convenience, the input x is sorted
 y=rep(0,times=N)
@@ -15,13 +15,17 @@ for(i in 1:N){
 plot(x,y)
 points(x,f(x),type="l",col=2,lwd=2)
 
-x_test = x[301:400]
-y_test = y[301:400]
+data = cbind(x,y)
 
-x_train =x[1:300]
-y_train = y[1:300]
+index=seq(1,500)
+test = data[index,]
+train = data[-index,]
 
+x_test = test[,1]
+y_test = test[,2]
 
+x_train = train[,1]
+y_train = train[,2]
 
 MSE <- vector()
 
@@ -135,13 +139,73 @@ for(i in 1:N){
 plot(x,y)
 points(x,f(x),type="l",col=2,lwd=2)
 
+data = cbind(x,y)
+
 ## CV
+# Aleatorizar
+data <-data[sample(nrow(data)),]
+
+# Partir
+folds <- cut(seq(1,nrow(data)),breaks=10,labels=FALSE)
+
+# 10 CV
+MSE_final= vector()
+
+for(k in 1:200){
+  MSE = vector()
+
+
+  for(i in 1:10){
+    test_i <- which(folds==i,arr.ind=TRUE)
+    test <- data[test_i, ]
+    x_test = test[,1]
+    y_test = test[,2]
+    train <- data[-test_i, ]
+    x_train = train[,1]
+    y_train = train[,2]
+    
+    pred = kn(k,T)
+    MSE[i] = mean((pred-y_test)^2)
+  }
+  MSE_final[k] = mean(MSE)
+}
+plot(MSE_final)
+which.min(MSE_final)
+min(MSE_final)
+
+
+# LOO
+data <-data[sample(nrow(data)),]
+folds <- cut(seq(1,nrow(data)),breaks=N,labels=FALSE)
+
+MSE_final_LOO= vector()
+
+for(k in 1:200){
+  MSE = vector()
+  
+  
+  for(i in 1:N){
+    test_i <- which(folds==i,arr.ind=TRUE)
+    test <- data[test_i,]
+    x_test = test[1]
+    y_test = test[2]
+    train <- data[-test_i, ]
+    x_train = train[,1]
+    y_train = train[,2]
+    
+    pred = kn(k,T)
+    MSE[i] = mean((pred-y_test)^2)
+  }
+  MSE_final_LOO[k] = mean(MSE)
+}
+plot(MSE_final_LOO)
+which.min(MSE_final_LOO)
+min(MSE_final_LOO)
 
 
 
 
 
-###### d ########
 #You can try to modify the denominator inside the cosine to change the complexity of f*
 f=function(x){
   y=2+x^(.2)*cos(x/.15)/x^-.45
