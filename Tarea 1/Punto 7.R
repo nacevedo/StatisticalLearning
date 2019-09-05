@@ -1,4 +1,7 @@
 library(ISLR)
+library(corrplot)
+library(leaps)
+
 data=Carseats
 n=sample(c(1:400),80,replace=F)
 
@@ -12,7 +15,7 @@ train=data[-n,]
 test=data[n,]
 
 
-scale_train=scale(train[,-7])
+scale_train=scale(train)
 
 # Componentes principales
 pca = pcr(Sales~.,data=train, scale=T, validation = "CV")
@@ -44,6 +47,37 @@ plot(reg_sub_summary$cp,type="b") #El cp de mallows
 
 ### Hacer código que haga princomp!!!!!
 
+corrplot(cor(data), method = "circle")
+
+S=var(scale_train[,-1])
+eig = eigen(S)
+W = eig$vectors
+lambdas = eig$values
+
+XX=as.matrix(scale_train[,-1])  
+Z=XX%*%W
+
+corrplot(cor(Z), method = "circle")
+
+pp=princomp(scale_train[,-1],scores=TRUE)
+zz=pp$scores
+train_comps = data.frame(cbind(Z,scale_train[,1]))
+
+# Variables
+reg_subset=regsubsets(scale_train[,1]~.,data=train_comps,method="forward",nvmax=7) ## nvmax debe ser el total
+reg_sub_summary=summary(reg_subset)
+reg_sub_summary
+
+reg_sub_summary$cp  
+which.min(reg_sub_summary$cp)
+plot(reg_sub_summary$cp,type="b") #El cp de mallows  
+# El mejor es con 1, 4, 6, 7
+
+reg=lm(scale_train[,1]~.,data=scale_train[,-1],scale=F,validation="CV")
+
+predpl=predict(pls,test)
+msepls=mean((test$Sales-predpl)^2)
+msepls
 
 ### PLSR
 pls=plsr(Sales~.,data=train,scale=T,validation="CV")
