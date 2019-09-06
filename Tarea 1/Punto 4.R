@@ -5,7 +5,7 @@ f=function(x){
 plot(f,0,5)
 
 #Points simulation: you change n and sigma
-N=1000
+N=400
 sigma=1.2
 x=runif(N,0,5);x=sort(x)  #For convenience, the input x is sorted
 y=rep(0,times=N)
@@ -17,6 +17,7 @@ points(x,f(x),type="l",col=2,lwd=2)
 
 data = cbind(x,y)
 
+# Creación de train y test
 ss=seq(1:N)
 ss=sample(ss,N,replace=F)
 ss1=ss[1:300]
@@ -54,7 +55,8 @@ for(k in 1:200){
  
 }
 
-plot(MSE, type="l")
+plot(MSE, type="l", xlab = 'k')
+
 min(MSE)
 which.min(MSE) # 15
 # Error irreducible es 1.44
@@ -81,7 +83,7 @@ plot(f,0,5)
 #Points simulation: you change n and sigma
 N=600
 sigma=1.2
-x=runif(N,0,5);#x=sort(x)  #For convenience, the input x is sorted
+x=runif(N,0,5);x=sort(x)  #For convenience, the input x is sorted
 y=rep(0,times=N)
 for(i in 1:N){
   y[i]=f(x[i])+rnorm(1,0,sigma)
@@ -89,15 +91,20 @@ for(i in 1:N){
 plot(x,y)
 points(x,f(x),type="l",col=2,lwd=2)
 
-x_test = x[301:600]
-y_test = y[301:600]
-
-x_train =x[1:300]
-y_train = y[1:300]
-
+ss=seq(1:N)
+ss=sample(ss,N,replace=F)
+ss1=ss[1:300]
+ss2=ss[301:N]
 
 
-MSE <- vector()
+y_train=y[ss1]
+x_train=x[ss1]
+y_test=y[ss2]
+x_test=x[ss2]
+
+
+
+MSE_600 <- vector()
 
 #Estimator by k-neighbors
 #k es el numero de vecinos y test=TRUE/FALSE determina si se estima sobre
@@ -120,26 +127,32 @@ kn=function(k,test){
 
 for(k in 1:200){
   pred = kn(k,T)
-  MSE[k] = mean((pred-y_test)^2)
+  MSE_600[k] = mean((pred-y_test)^2)
   
 }
 
-plot(MSE)
-min(MSE)
-which.min(MSE) # 16
+plot(MSE_600, type="l", xlab = 'k')
+min(MSE_600)
+which.min(MSE_600) # 16
 # Error irreducible es 1.44
 
 
 ##### c ##########  CV y LOO
 N=400
 sigma=1.2
-x=runif(N,0,5);#x=sort(x)  #For convenience, the input x is sorted
+x=runif(N,0,5);x=sort(x)  #For convenience, the input x is sorted
 y=rep(0,times=N)
 for(i in 1:N){
   y[i]=f(x[i])+rnorm(1,0,sigma)
 }
 plot(x,y)
 points(x,f(x),type="l",col=2,lwd=2)
+
+ss=seq(1:N)
+ss=sample(ss,N,replace=F)
+
+y=y[ss]
+x=x[ss]
 
 data = cbind(x,y)
 
@@ -171,7 +184,7 @@ for(k in 1:200){
   }
   MSE_final[k] = mean(MSE)
 }
-plot(MSE_final)
+plot(MSE_final, type = 'l', xlab = 'k', ylab = 'MSE')
 which.min(MSE_final)
 min(MSE_final)
 
@@ -200,13 +213,13 @@ for(k in 1:200){
   }
   MSE_final_LOO[k] = mean(MSE)
 }
-plot(MSE_final_LOO)
+plot(MSE_final_LOO, type = 'l', xlab = 'k', ylab = 'MSE')
 which.min(MSE_final_LOO)
 min(MSE_final_LOO)
 
 
 
-
+#### d ######
 
 #You can try to modify the denominator inside the cosine to change the complexity of f*
 f=function(x){
@@ -215,25 +228,31 @@ f=function(x){
 plot(f,0,5)
 
 #Points simulation: you change n and sigma
-N=1000
-sigma=1.2
-x=runif(N,0,5);#x=sort(x)  #For convenience, the input x is sorted
+N=400
+#sigma=1.2
+#sigma=2
+sigma = 2
+x=runif(N,0,5);x=sort(x)  #For convenience, the input x is sorted
 y=rep(0,times=N)
 for(i in 1:N){
   y[i]=f(x[i])+rnorm(1,0,sigma)
 }
-plot(x,y)
-points(x,f(x),type="l",col=2,lwd=2)
+#plot(x,y)
+#points(x,f(x),type="l",col=2,lwd=2)
 
-x_test = x[501:N]
-y_test = y[501:N]
-
-x_train =x[1:500]
-y_train = y[1:500]
-
+ss=seq(1:N)
+ss=sample(ss,N,replace=F)
+ss1=ss[1:300]
+ss2=ss[301:N]
 
 
-MSE <- vector()
+y_train=y[ss1]
+x_train=x[ss1]
+y_test=y[ss2]
+x_test=x[ss2]
+
+
+MSE_2 <- vector()
 
 #Estimator by k-neighbors
 #k es el numero de vecinos y test=TRUE/FALSE determina si se estima sobre
@@ -256,24 +275,72 @@ kn=function(k,test){
 
 for(k in 1:200){
   pred = kn(k,T)
-  MSE[k] = mean((pred-y_test)^2)
+  MSE_2[k] = mean((pred-y_test)^2)
   
 }
 
-plot(MSE)
+plot(MSE_1.2, type = 'l', xlab = 'k', ylab = 'MSE',ylim = c(0, 9))
+lines(MSE_2, col = 2)
+lines(MSE_0.5, col = 4)
 min(MSE)
-which.min(MSE) # 15
-# Error irreducible es 1.44
-
-
-
-k=14 #Puede cambiarlo
-
-
-plot(x,y)
-points(x,f(x),type="l",col=2,lwd=2)
-points(z,kn(k,T),type="l",col=4,lwd=2)
-
+which.min(MSE_1.2)
+which.min(MSE_2)
+which.min(MSE_0.5)
 
 
 ##################### e Bootstrap
+N=400
+sigma=1.2
+x=runif(N,0,5);x=sort(x)  #For convenience, the input x is sorted
+y=rep(0,times=N)
+for(i in 1:N){
+  y[i]=f(x[i])+rnorm(1,0,sigma)
+}
+plot(x,y)
+points(x,f(x),type="l",col=2,lwd=2)
+
+ss=seq(1:N)
+ss=sample(ss,N,replace=F)
+ss1=ss[1:300]
+ss2=ss[301:N]
+
+
+y_train=y[ss1]
+x_train=x[ss1]
+y_test=y[ss2]
+x_test=x[ss2]
+
+
+
+MSE <- vector()
+
+#Estimator by k-neighbors
+#k es el numero de vecinos y test=TRUE/FALSE determina si se estima sobre
+#un grid cualquiera (FALSE) o sobre los x en la muestra de test (TRUE)
+kn=function(k,test){
+  if(test=="FALSE"){z=seq(0,5,by=0.01);ll=length(z)}  #predict on train
+  if(test=="TRUE"){z=x_test;ll=length(z)}    #x_test is the name of set for prediction
+  nk=rep(0,times=ll)
+  for(j in 1:ll){
+    veci=which(abs(z[j]-x_train) %in% sort(abs(z[j]-x_train))[1:k])
+    nk[j]=sum(y_train[veci])/k
+  }
+  
+  return(nk) 
+}
+k = 9
+pred = kn(k,T)
+
+
+B=200
+ybar_boot=rep(0,times=B) # Creación de vector vacío
+
+# N = 100 o N = 400??
+for(i in 1:B){
+  sampl=sample(seq(1:N),N,replace=T) # T: Muestreo con remplazo
+  ybar_boot[i]=mean(pred[sampl])}
+
+ybar_boot
+plot(density(ybar_boot))  # Plot de medias obtenidas con el bootstrap
+c(quantile(ybar_boot,0.025),quantile(ybar_boot,0.975))
+# Intervalo de confianza de bootstrap

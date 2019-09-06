@@ -1,5 +1,5 @@
 set.seed(1234)
-x=rnorm(200, mean=2, sd=1.3)
+x=rnorm(200, mean=2, sd=1.3);
 
 error=rnorm(200,0,sd=5.9)
 y=1+1.1*x-0.2*x^2+0.09*x^3+0.06*x^4+error
@@ -9,17 +9,28 @@ x3 = x^3
 x4 = x^4
 
 fit = lm(y~x)
-fit = lm(y~x+x2+x3+x4)
+#fit = lm(y~x+x2+x3+x4)
 summary(fit)
+plot(x,y)
+f=function(x){
+  y=fit$coefficients[1]+fit$coefficients[2]*x
+  return(y) }
+points(x,f(x),type="l",col=2,lwd=2)
+
+
 
 ## b
-train = x[1:120]
-ytrain = y[1:120]
-test = x[121:200]
-ytest = y[121:200]
+N = 200
+
+ytrain=y[1:120]
+train=x[1:120]
+ytest=y[121:N]
+test=x[121:N]
 
 
-xtrain <- data.frame(x = train, 
+
+xtrain <- data.frame(ytrain = ytrain,
+                     x = train, 
                      x2 = train^2, 
                      x3 = train^3, 
                      x4 = train^4, 
@@ -30,7 +41,8 @@ xtrain <- data.frame(x = train,
 
 
 
-xtest <- data.frame(x = test, 
+xtest <- data.frame(ytest = ytest,
+                     x = test, 
                      x2 = test^2, 
                      x3 = test^3, 
                      x4 = test^4, 
@@ -73,8 +85,8 @@ mse[7]=mean((ytest-pred7)^2)
 pred8 = predict(fit8, xtest)
 mse[8]=mean((ytest-pred8)^2)
 
-plot(mse)
-lines(mse)
+plot(mse, type = 'l', col = 2, ylab = 'MSE', xlab = 'Grado')
+
 
 
 #### Train
@@ -103,4 +115,9 @@ mse_train[7]=mean((ytrain-pred7)^2)
 pred8 = predict(fit8, xtrain)
 mse_train[8]=mean((ytrain-pred8)^2)
 
-lines(mse_train)
+lines(mse_train, col = 4)
+legend(1,600,c('Test','Train'), col = c('red','blue'), lty=1, cex=0.8)
+min(mse_train)
+min(mse)
+which.min(mse)
+which.min(mse_train)
