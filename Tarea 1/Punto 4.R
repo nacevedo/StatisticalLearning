@@ -7,7 +7,7 @@ plot(f,0,5)
 #Points simulation: you change n and sigma
 N=1000
 sigma=1.2
-x=runif(N,0,5);#x=sort(x)  #For convenience, the input x is sorted
+x=runif(N,0,5);x=sort(x)  #For convenience, the input x is sorted
 y=rep(0,times=N)
 for(i in 1:N){
   y[i]=f(x[i])+rnorm(1,0,sigma)
@@ -17,15 +17,17 @@ points(x,f(x),type="l",col=2,lwd=2)
 
 data = cbind(x,y)
 
-index=seq(1,500)
-test = data[index,]
-train = data[-index,]
+ss=seq(1:N)
+ss=sample(ss,N,replace=F)
+ss1=ss[1:300]
+ss2=ss[301:N]
 
-x_test = test[,1]
-y_test = test[,2]
 
-x_train = train[,1]
-y_train = train[,2]
+y_train=y[ss1]
+x_train=x[ss1]
+y_test=y[ss2]
+x_test=x[ss2]
+
 
 MSE <- vector()
 
@@ -52,7 +54,7 @@ for(k in 1:200){
  
 }
 
-plot(MSE)
+plot(MSE, type="l")
 min(MSE)
 which.min(MSE) # 15
 # Error irreducible es 1.44
