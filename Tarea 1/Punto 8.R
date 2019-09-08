@@ -5,26 +5,153 @@ library(pls)
 library(glmnet)
 
 ## Leer el archivo
-
 data = read.table("communities.data", sep = ",")
+colnames(data) = c(
+  "state",
+  "county",
+  "community",
+  "communityname",
+  "fold",
+  "population",
+  "householdsize",
+  "racepctblack",
+  "racePctWhite",
+  "racePctAsian",
+  "racePctHisp",
+  "agePct12t21",
+  "agePct12t29",
+  "agePct16t24",
+  "agePct65up",
+  "numbUrban",
+  "pctUrban",
+  "medIncome",
+  "pctWWage",
+  "pctWFarmSelf",
+  "pctWInvInc",
+  "pctWSocSec",
+  "pctWPubAsst",
+  "pctWRetire",
+  "medFamInc",
+  "perCapInc",
+  "whitePerCap",
+  "blackPerCap",
+  "indianPerCap",
+  "AsianPerCap",
+  "OtherPerCap",
+  "HispPerCap",
+  "NumUnderPov",
+  "PctPopUnderPov",
+  "PctLess9thGrade",
+  "PctNotHSGrad",
+  "PctBSorMore",
+  "PctUnemployed",
+  "PctEmploy",
+  "PctEmplManu",
+  "PctEmplProfServ",
+  "PctOccupManu",
+  "PctOccupMgmtProf",
+  "MalePctDivorce",
+  "MalePctNevMarr",
+  "FemalePctDiv",
+  "TotalPctDiv",
+  "PersPerFam",
+  "PctFam2Par",
+  "PctKids2Par",
+  "PctYoungKids2Par",
+  "PctTeen2Par",
+  "PctWorkMomYoungKids",
+  "PctWorkMom",
+  "NumIlleg",
+  "PctIlleg",
+  "NumImmig",
+  "PctImmigRecent",
+  "PctImmigRec5",
+  "PctImmigRec8",
+  "PctImmigRec10",
+  "PctRecentImmig",
+  "PctRecImmig5",
+  "PctRecImmig8",
+  "PctRecImmig10",
+  "PctSpeakEnglOnly",
+  "PctNotSpeakEnglWell",
+  "PctLargHouseFam",
+  "PctLargHouseOccup",
+  "PersPerOccupHous",
+  "PersPerOwnOccHous",
+  "PersPerRentOccHous",
+  "PctPersOwnOccup",
+  "PctPersDenseHous",
+  "PctHousLess3BR",
+  "MedNumBR",
+  "HousVacant",
+  "PctHousOccup",
+  "PctHousOwnOcc",
+  "PctVacantBoarded",
+  "PctVacMore6Mos",
+  "MedYrHousBuilt",
+  "PctHousNoPhone",
+  "PctWOFullPlumb",
+  "OwnOccLowQuart",
+  "OwnOccMedVal",
+  "OwnOccHiQuart",
+  "RentLowQ",
+  "RentMedian",
+  "RentHighQ",
+  "MedRent",
+  "MedRentPctHousInc",
+  "MedOwnCostPctInc",
+  "MedOwnCostPctIncNoMtg",
+  "NumInShelters",
+  "NumStreet",
+  "PctForeignBorn",
+  "PctBornSameState",
+  "PctSameHouse85",
+  "PctSameCity85",
+  "PctSameState85",
+  "LemasSwornFT",
+  "LemasSwFTPerPop",
+  "LemasSwFTFieldOps",
+  "LemasSwFTFieldPerPop",
+  "LemasTotalReq",
+  "LemasTotReqPerPop",
+  "PolicReqPerOffic",
+  "PolicPerPop",
+  "RacialMatchCommPol",
+  "PctPolicWhite",
+  "PctPolicBlack",
+  "PctPolicHisp",
+  "PctPolicAsian",
+  "PctPolicMinor",
+  "OfficAssgnDrugUnits",
+  "NumKindsDrugsSeiz",
+  "PolicAveOTWorked",
+  "LandArea",
+  "PopDens",
+  "PctUsePubTrans",
+  "PolicCars",
+  "PolicOperBudg",
+  "LemasPctPolicOnPatr",
+  "LemasGangUnitDeploy",
+  "LemasPctOfficDrugUn",
+  "PolicBudgPerPop",
+  "ViolentCrimesPerPop")
 head(data)
 
 #Quitar columnas y datos nulos (correr sólo una vez)
-
-s = seq(97,116)
+s = seq(97,116) # Crear secuencia de valores
 data = data[,c(-1,-2,-3,-4,-5,-s,-117,-118,-119,-120,-122,-123,-124,-125,-127)]
 data = na.omit(data)
 
-r = describeBy(data)
+r = describeBy(data) # Descripción de datos
 
 #varible a predecir: V128 (posición 94 del arreglo)
 
 #creación de train y test
 
 x = as.data.frame(data[,-94])
-y = data$V128
+y = data$ViolentCrimesPerPop
 
-N = length(data$V6)
+N = length(data$population)
 ss = seq(1:N)
 ss = sample(ss,N,replace=F)
 ss1 = ss[1:1593]
@@ -42,9 +169,10 @@ x_val = x[ss2,]
 pca = pcr(y_train~., data = x_train, scale = T, validation = "CV")
 summary(pca)
 
-predpca = predict(pca, x_val, ncomp = 1:93)    
+predpca = predict(pca, x_val)    
 msePCA = mean((y_val-predpca)^2)
 msePCA
+
 
 ###### PLS ###### 
 
@@ -85,10 +213,12 @@ predLASSO = predict(mod_penLASSO, as.matrix(x_val))
 mseLASSO = mean((y_val-predLASSO)^2)
 mseLASSO
 
+
 ##### Comparación MSE #####
 
 msePCA
 msePLS
 mseRIDGE
 mseLASSO #El mejor
+
 
