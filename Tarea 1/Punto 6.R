@@ -23,6 +23,7 @@ cor(x1,x2)
 fit1=lm(y~x1); summary(fit1)
 fit2=lm(y~x2); summary(fit2)
 
+### c #####
 x3=1*y+rnorm(150,0,4)
 x4=-6*x2+rnorm(150,0,3)
 x5=5*x1+rnorm(150,0,5)
