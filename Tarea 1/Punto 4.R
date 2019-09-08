@@ -17,7 +17,7 @@ points(x,f(x),type="l",col=2,lwd=2)
 
 data = cbind(x,y)
 
-# Creación de train y test
+# Creaci?n de train y test
 ss=seq(1:N)
 ss=sample(ss,N,replace=F)
 ss1=ss[1:300]
@@ -52,7 +52,7 @@ kn=function(k,test){
 for(k in 1:200){
   pred = kn(k,T)
   MSE[k] = mean((pred-y_test)^2)
- 
+  
 }
 
 plot(MSE, type="l", xlab = 'k')
@@ -168,8 +168,8 @@ MSE_final= vector()
 
 for(k in 1:200){
   MSE = vector()
-
-
+  
+  
   for(i in 1:10){
     test_i <- which(folds==i,arr.ind=TRUE)
     test <- data[test_i, ]
@@ -287,7 +287,8 @@ which.min(MSE_2)
 which.min(MSE_0.5)
 
 
-##################### e Bootstrap
+##################### e Bootstrap ##################### 
+
 N=400
 sigma=1.2
 x=runif(N,0,5);x=sort(x)  #For convenience, the input x is sorted
@@ -302,10 +303,8 @@ ss=seq(1:N)
 ss=sample(ss,N,replace=F)
 ss=ss[1:400]
 
-
 y_train=y[ss]
 x_train=x[ss]
-
 
 MSE <- vector()
 
@@ -328,48 +327,21 @@ pred = kn(k,T)
 xpred = x_train
 plot(xpred, pred)
 
+### Bootstrap final con 500 resamples ###
 
+B = 500
+ybar_boot = rep(0,times=B) # Creaci?n de vector vac?o
+xbar_boot = rep(2,times=B)
 
-B=1000
-ybar_boot=rep(0,times=B) # Creación de vector vacío
-xbar_boot=rep(0,times=B)
-
-
-for(i in 1:B){
-  sampl=sample(seq(1:N),N,replace=T) # T: Muestreo con remplazo
-  xbar_boot[i]=mean(xpred[sampl])
-  ybar_boot[i]=mean(pred[sampl])
-  }
-
+for(i in 1:B)
+{
+  sampl = sample(seq(1:N), N, replace = T) # T: Muestreo con remplazo
+  x_train = x[sampl]
+  y_train = y[sampl]
+  x_test = 2
+  
+  ybar_boot[i] = kn(10, T)
+}
 
 plot(density(ybar_boot))  # Plot de medidas obtenidas con el bootstrap
 c(quantile(ybar_boot,0.025),quantile(ybar_boot,0.975))
-
-plot(xbar_boot,ybar_boot)
-
-fit1 = lm(ybar_boot~xbar_boot)
-summary(fit1)
-
-xp = 2
-
-predict(fit1, 2,interval ="confidence")
-
-
-library(ISLR)
-library(boot) # Librería para bootstrap
-
-data_boot=data.frame(y_train, x_train)
-names(data_boot)=c("Y","X")
-linear=lm(Y~X,data=data_boot)
-summary(linear)
-
-coef_boot=function(data,index){
-  X=data$X[index]
-  Y=data$Y[index]
-  return(lm(Y~X,data=data,subset=index)$coef)}
-
-
-coef_boot(data_boot,1:400)
-
-boot.ci(data_boot,coef_boot,R=500)
-
