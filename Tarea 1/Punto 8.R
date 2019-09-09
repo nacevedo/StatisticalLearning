@@ -176,7 +176,7 @@ msePCA
 
 ###### PLS ###### 
 
-pls = plsr(data$V128~., data = data, scale = T, validation = "CV")
+pls = plsr(data$ViolentCrimesPerPop~., data = data, scale = T, validation = "CV")
 summary(pls)
 
 predPLS = predict(pls, x_val, ncomp = 1:93)    
