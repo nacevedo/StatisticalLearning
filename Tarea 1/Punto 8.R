@@ -221,4 +221,12 @@ msePLS
 mseRIDGE
 mseLASSO #El mejor
 
+##### Variables Significativas con LASSO #####
+
+betas = as.matrix(coef(mod_penLASSO))
+betas = as.data.frame(betas)
+betas[betas >= 0.0001 | betas <= -0.0001] #valor de los betas significativos
+row.names(betas)[betas >= 0.0001 | betas <= -0.0001] #nombre de las variables de los betas significativos
+
+
 
