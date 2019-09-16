@@ -330,7 +330,7 @@ plot(xpred, pred)
 ### Bootstrap final con 500 resamples ###
 
 B = 500
-ybar_boot = rep(0,times=B) # Creaci?n de vector vac?o
+ybar_boot = rep(0,times=B) # Creacion de vector vac?o
 xbar_boot = rep(2,times=B)
 
 for(i in 1:B)

@@ -176,7 +176,7 @@ msePCA
 
 ###### PLS ###### 
 
-pls = plsr(data$V128~., data = data, scale = T, validation = "CV")
+pls = plsr(y_train~., data = x_train, scale = T, validation = "CV")
 summary(pls)
 
 predPLS = predict(pls, x_val, ncomp = 1:93)    
@@ -221,4 +221,8 @@ msePLS
 mseRIDGE
 mseLASSO #El mejor
 
+x = c("PCA", "PLS", "Ridge", "Lasso")
+y = c(0.02052191, 0.01793674, 0.0182319, 0.01768556)
+library(lattice)
+dotplot(y~x, ylab = 'MSE', cex = 2)
 

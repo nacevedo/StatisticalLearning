@@ -3,10 +3,11 @@ library(corrplot)
 library(leaps)
 library(pls)
 
+
 data=Carseats
 n=sample(c(1:400),80,replace=F)
 
-# Creación de train y test aleatorio
+# Creaci?n de train y test aleatorio
 data = data[,-c(7,10,11)]
 
 # Omitir valores nulos
@@ -20,9 +21,9 @@ test=data[n,]
 pca2=prcomp(train[,-1],scale = TRUE)
 pca = pcr(Sales~.,data=train, scale=T, validation = "CV")
 summary(pca)
-pca$rotation
+pca$loadings
 
-scale_train=scale(train[,-8])
+scale_train=scale(train[,-1])
 pp=princomp(scale_train,scores=TRUE)
 
 zz=pp$scores
@@ -43,24 +44,25 @@ msepca=mean((test$Sales-predpca)^2)
 msepca
 
 
-
-### Hacer código que haga princomp!!!!!
+# Princomp
 corrplot(cor(data), method = "circle")
+pairs(data)
 
 scale_train = scale(train[,-1])
 
 S=t(var(scale_train))
 eig = eigen(S)
 W = eig$vectors
-W = as.matrix(cbind(-W[,1],W[,2:3],-W[,4],W[,5:7]))
+W = as.matrix(cbind(W[,1:3],-W[,4],W[,5:7]))
 lambdas = eig$values
 
 z=scale_train%*%W
 
 corrplot(cor(z), method = "circle")
 pairs(cbind(train$Sales, z))
+corrplot(cor(data), method = "circle")
 
-comps = data.frame(cbind(z,Y = train[,1]))
+train_comps = data.frame(cbind(z,Y = train[,1]))
 
 # Variables
 reg_subset=regsubsets(Y~.,data=train_comps,method="forward",nvmax=7) ## nvmax debe ser el total
@@ -94,38 +96,23 @@ scale_test = as.matrix(scale_test)
 
 pp_test <- (scale_test %*% W)
 
-test_comps = data.frame(cbind(Comp.1= pp_test[,1],
-                              Comp.2= pp_test[,2],
-                              Comp.3= pp_test[,3],
-                              Comp.4= pp_test[,4],
-                              Comp.5= pp_test[,5],
-                              Comp.6= pp_test[,6],
-                              Comp.7= pp_test[,7]))
+test_comps = data.frame(cbind(V1= pp_test[,1],
+                              V2= pp_test[,2],
+                              V3= pp_test[,3],
+                              V4= pp_test[,4],
+                              V5= pp_test[,5],
+                              V6= pp_test[,6],
+                              V7= pp_test[,7]))
 
 
-
-
-                       
 
 
 # Fit
-fit = lm(V8~., data = train_comps)
+fit = lm(Y~., data = train_comps)
 summary(fit)
 predpp=predict(fit,test_comps)
 msecpa=mean((test$Sales-predpp)^2)
 msecpa
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -137,9 +124,31 @@ summary(pls)
 zz = pls$scores
 train_comps = data.frame(cbind(zz,train$Sales))
 
+# Variables
+reg_subset=regsubsets(V8~.,data=train_comps,method="forward",nvmax=7) ## nvmax debe ser el total
+reg_sub_summary=summary(reg_subset)
+reg_sub_summary
+
+reg_sub_summary$cp  
+which.min(reg_sub_summary$cp)
+plot(reg_sub_summary$cp,type="b") #El cp de mallows  
+# El mejor es con 1, 2, 3
+
+
+predpl=predict(pls,test, ncomp = 3)
+msepls=mean((test$Sales-predpl)^2)
+msepls
+
+xtrain = train[,2:7]
+xtrain = as.matrix(xtrain)
+
+
 predpl=predict(pls,test)
 msepls=mean((test$Sales-predpl)^2)
 msepls
+
+
+
 
 
 ### Ridge

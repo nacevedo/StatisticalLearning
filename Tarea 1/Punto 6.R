@@ -16,6 +16,8 @@ plot(x1,y) ; plot(x2,y) ; plot(x1,x2)
 x=cbind(x1,x2)
 fit=lm(y~x); summary(fit)
 cor(x1,x2)
+plot(fit)
+
 
 ## a. Sí tienen sentido. Ambos están correlacionados
 
@@ -39,7 +41,7 @@ corrplot(cor(data), method = "circle")
 
 
 # Creación de test y train
-index=seq(1,75)
+index=sample(c(1:150),75,replace=F)
 test = data[index,]
 train = data[-index,]
 
@@ -57,8 +59,8 @@ plot(reg_sub_summary$bic,type="b",col="red")  #El BIC
 plot(reg_sub_summary$adjr2,type="b",col="blue")  #El R2ajustado
 
 which.min(reg_sub_summary$cp)
-# 3
-fit_sec = lm(y~x1+x2+x3, data = train)
+# 4
+fit_sec = lm(y~x1+x2+x3+x4, data = train)
 pred=predict(fit_sec,test)
 msesec=mean((test$y-pred)^2)
 msesec
@@ -104,42 +106,6 @@ which.min(reg_sub_summary$cp)
 plot(reg_sub_summary$cp,type="b") #El cp de mallows  
 # El mejor es con 1, 2, 3, 4, 5, 6
 
-# Aplicar a Test
-
-# # Estandarizar Test
-# train_matrix = data.matrix(train) # Pasar data frame a matriz
-# miu = colMeans(train_matrix)
-# s = colSds(train_matrix)
-# 
-# #
-# mius = rep(miu,nrow(test))
-# mius = matrix(mius, ncol = nrow(test))
-# mius = t(mius)
-# 
-# s = rep(s,nrow(test))
-# s = matrix(s, ncol = nrow(test))
-# s = t(s)
-# 
-# scale_test = (test-(mius))/s
-# scale_test = scale_test[,-7]
-# 
-# 
-# # Pasar test a componentes
-# weights = loadings(pp)[]
-# 
-# test_mats = as.matrix(scale_test)
-# pp_test = test_mats%*%weights
-# 
-# test_comps = data.frame(cbind(pp_test,test$y))
-
-
-# # Fit
-# fit = lm(V7~Comp.1+Comp.2+Comp.3+Comp.4+Comp.5+Comp.6, data = train_comps)
-# predpp=predict(fit,test_comps)
-# msecpa=mean((test$y-predpp)^2)
-# msecpa
-
-
 ### PCA
 pca = pcr(y~.,data=train, scale=T, validation = "CV")
 summary(pca)
@@ -151,7 +117,6 @@ msepca
 ### PLS
 scale_train=scale(train[,-7])
 
-# Componentes principales
 pls=plsr(y~.,data=train,scale=T,validation="CV")
 summary(pls)
 
@@ -166,7 +131,7 @@ reg_sub_summary
 reg_sub_summary$cp  
 which.min(reg_sub_summary$cp)
 plot(reg_sub_summary$cp,type="b") #El cp de mallows  
-# El mejor es con 1, 2, 3, 4, 5, 6
+# El mejor es con 1, 2, 3, 4, 5
 
 
 predpl=predict(pls,test)
