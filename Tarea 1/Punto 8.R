@@ -176,7 +176,11 @@ msePCA
 
 ###### PLS ###### 
 
+<<<<<<< HEAD
 pls = plsr(y_train~., data = x_train, scale = T, validation = "CV")
+=======
+pls = plsr(data$ViolentCrimesPerPop~., data = data, scale = T, validation = "CV")
+>>>>>>> 8510417b4117a1ade3dcb77081dba0f774d34188
 summary(pls)
 
 predPLS = predict(pls, x_val, ncomp = 1:93)    
@@ -221,8 +225,19 @@ msePLS
 mseRIDGE
 mseLASSO #El mejor
 
+<<<<<<< HEAD
 x = c("PCA", "PLS", "Ridge", "Lasso")
 y = c(0.02052191, 0.01793674, 0.0182319, 0.01768556)
 library(lattice)
 dotplot(y~x, ylab = 'MSE', cex = 2)
+=======
+##### Variables Significativas con LASSO #####
+
+betas = as.matrix(coef(mod_penLASSO))
+betas = as.data.frame(betas)
+betas[betas >= 0.0001 | betas <= -0.0001] #valor de los betas significativos
+row.names(betas)[betas >= 0.0001 | betas <= -0.0001] #nombre de las variables de los betas significativos
+
+
+>>>>>>> 8510417b4117a1ade3dcb77081dba0f774d34188
 

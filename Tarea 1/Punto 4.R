@@ -306,27 +306,6 @@ ss=ss[1:400]
 y_train=y[ss]
 x_train=x[ss]
 
-MSE <- vector()
-
-#Estimator by k-neighbors
-#k es el numero de vecinos y test=TRUE/FALSE determina si se estima sobre
-#un grid cualquiera (FALSE) o sobre los x en la muestra de test (TRUE)
-kn=function(k,test){
-  if(test=="FALSE"){z=seq(0,5,by=0.01);ll=length(z)}  #predict on train
-  if(test=="TRUE"){z=x_train;ll=length(z)}    #x_test is the name of set for prediction
-  nk=rep(0,times=ll)
-  for(j in 1:ll){
-    veci=which(abs(z[j]-x_train) %in% sort(abs(z[j]-x_train))[1:k])
-    nk[j]=sum(y_train[veci])/k
-  }
-  
-  return(nk) 
-}
-k = 9
-pred = kn(k,T)
-xpred = x_train
-plot(xpred, pred)
-
 ### Bootstrap final con 500 resamples ###
 
 B = 500
@@ -340,8 +319,9 @@ for(i in 1:B)
   y_train = y[sampl]
   x_test = 2
   
-  ybar_boot[i] = kn(10, T)
+  ybar_boot[i] = kn(9, T)
 }
 
 plot(density(ybar_boot))  # Plot de medidas obtenidas con el bootstrap
 c(quantile(ybar_boot,0.025),quantile(ybar_boot,0.975))
+
