@@ -31,35 +31,34 @@ plot(gams.fit,se=T,col=4,lwd=2)
 par(mfrow=c(1,1))
 plot(Hitters$Salary)
 
-### Funciones útiles 
 
-# Funcion L
+#Funcion L
 
-# Lfun = function(h,x){
+Lfun = function(h,x){
+   N = length(x)
+   L = matrix(rep(0,times=N*N), ncol=N)
+   for(i in 1:N){
+     zz = rep(x[i],times=N)
+     bottom = sum(dnorm((zz-x)/h))
+     L[i,] = dnorm((zz-x)/h)/bottom
+   }
+   return(L)
+ }
+
+# Lfun=function(h,x){
 #   N = length(x)
-#   L = matrix(rep(0,times=N*N), ncol=N)
+#   L=matrix(rep(0,times=N*N), ncol=N)
 #   for(i in 1:N){
-#     zz = rep(x[i],times=N)
-#     bottom = sum(dnorm((zz-x)/h))
-#     L[i,] = dnorm((zz-x)/h)/bottom
+#     cond = vector()
+#     zz=rep(x[i],times=N)
+#     for(j in 1:N){
+#       cond[j] = ifelse(abs(x[i]-x[j]) > (h), 0, 1)
+#     }
+#     bottom=sum((1-abs(zz-x)/h)*cond)
+#     L[i,]=(1-abs(zz-x)/h)*cond/bottom
 #   }
 #   return(L)
 # }
-
-Lfun=function(h,x){
-  N = length(x)
-  L=matrix(rep(0,times=N*N), ncol=N)
-  for(i in 1:N){
-    cond = vector()
-    zz=rep(x[i],times=N)
-    for(j in 1:N){
-      cond[j] = ifelse(abs(x[i]-x[j]) > (h), 0, 1)
-    }
-    bottom=sum((1-abs(zz-x)/h)*cond)
-    L[i,]=(1-abs(zz-x)/h)*cond/bottom
-  }
-  return(L)
-}
 
 f_hat = function(h,x,y){
   c(Lfun(h,x)%*%y) 
@@ -96,9 +95,11 @@ s0 = mean(data$Salary)
 
 #CRuns
 f1 = 0
+f1_prev = -1
 
 #CWalks
 f2 = 0
+f2_prev = -1
 
 m = 0 
 Y = data$Salary
