@@ -88,9 +88,9 @@ f2 = 0
 m = 0 
 Y = data$Salary
 
-h1 = .01
+h1 = 0
 h1_prev = -1
-h2 = .02
+h2 = 0
 h2_prev = -1
 
 while(h1 != h1_prev && h2 != h2_prev){
@@ -99,10 +99,10 @@ while(h1 != h1_prev && h2 != h2_prev){
   h2_prev = h2
   
   h1 = h_L(data$CRuns,Y - s0 - f2)
-  f1 = f_hat(h1, data$CRuns, Y)
+  f1 = f_hat(h1, data$CRuns, Y - s0 - f2)
   
   h2 = h_L(data$CWalks,Y - s0 - f1)
-  f2 = f_hat(h2, data$CWalks, Y)
+  f2 = f_hat(h2, data$CWalks, Y -s0 - f1)
   
 }
 
@@ -111,6 +111,6 @@ while(h1 != h1_prev && h2 != h2_prev){
 
 
 
-
 #bw = .35
 #kk = ksmooth(x, y, kernel = "normal", bandwidth = bw)
+
