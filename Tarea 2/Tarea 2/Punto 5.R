@@ -1,5 +1,5 @@
 library(ISLR)
-library(gam)
+library(mgcv)
 library(splines)
 
 # Creación de datos
@@ -24,7 +24,7 @@ summary(gams.fit)
 plot(gams.fit)
 
 # Plot de cada una de las variables
-par(mfrow=c(1,2))
+par(mfrow=c(1,3))
 plot(gams.fit,se=T,col=4,lwd=2)
 
 # Plot de los datos a predecir (Salary)
@@ -33,15 +33,30 @@ plot(Hitters$Salary)
 
 ### Funciones útiles 
 
-# Función L
+# Funcion L
 
-Lfun = function(h,x){
+# Lfun = function(h,x){
+#   N = length(x)
+#   L = matrix(rep(0,times=N*N), ncol=N)
+#   for(i in 1:N){
+#     zz = rep(x[i],times=N)
+#     bottom = sum(dnorm((zz-x)/h))
+#     L[i,] = dnorm((zz-x)/h)/bottom
+#   }
+#   return(L)
+# }
+
+Lfun=function(h,x){
   N = length(x)
-  L = matrix(rep(0,times=N*N), ncol=N)
+  L=matrix(rep(0,times=N*N), ncol=N)
   for(i in 1:N){
-    zz = rep(x[i],times=N)
-    bottom = sum(dnorm((zz-x)/h))
-    L[i,] = dnorm((zz-x)/h)/bottom
+    cond = vector()
+    zz=rep(x[i],times=N)
+    for(j in 1:N){
+      cond[j] = ifelse(abs(x[i]-x[j]) > (h), 0, 1)
+    }
+    bottom=sum((1-abs(zz-x)/h)*cond)
+    L[i,]=(1-abs(zz-x)/h)*cond/bottom
   }
   return(L)
 }
@@ -93,17 +108,30 @@ h1_prev = -1
 h2 = .02
 h2_prev = -1
 
-while(h1 != h1_prev && h2 != h2_prev){
-  
+N = length(Y)
+cont = 0
+
+while(sum(abs(f1 - f1_prev)) >1*10^-8 && sum(abs(f2 - f2_prev)) >1*10^-8 && cont <= 12){
+  cont = cont + 1
   h1_prev = h1
   h2_prev = h2
+  f1_prev = f1
+  f2_prev = f2
   
-  h1 = h_L(data$CRuns,Y - s0 - f2)
-  f1 = f_hat(h1, data$CRuns, Y)
+  nf1 = Y - s0 - f2_prev
+  nf2 = Y - s0 - f1_prev 
   
-  h2 = h_L(data$CWalks,Y - s0 - f1)
-  f2 = f_hat(h2, data$CWalks, Y)
+  h1 = h_L(data$CRuns,nf1)
+  f1 = f_hat(h2, data$CWalks, nf1)
+  f1 = f1-mean(f1)
   
+  
+  
+  h2 = h_L(data$CWalks,nf2)
+  f2 = f_hat(h1, data$CRuns,nf2)
+  f2 = f2-mean(f2)
+  
+  print(cont)
 }
 
 
@@ -112,5 +140,4 @@ while(h1 != h1_prev && h2 != h2_prev){
 
 
 
-#bw = .35
-#kk = ksmooth(x, y, kernel = "normal", bandwidth = bw)
+
