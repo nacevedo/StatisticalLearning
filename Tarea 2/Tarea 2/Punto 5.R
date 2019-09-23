@@ -103,9 +103,9 @@ f2 = 0
 m = 0 
 Y = data$Salary
 
-h1 = .01
+h1 = 0
 h1_prev = -1
-h2 = .02
+h2 = 0
 h2_prev = -1
 
 N = length(Y)
@@ -120,6 +120,8 @@ while(sum(abs(f1 - f1_prev)) >1*10^-8 && sum(abs(f2 - f2_prev)) >1*10^-8 && cont
   
   nf1 = Y - s0 - f2_prev
   nf2 = Y - s0 - f1_prev 
+  
+
   
   h1 = h_L(data$CRuns,nf1)
   f1 = f_hat(h2, data$CWalks, nf1)
