@@ -134,11 +134,3 @@ while(sum(abs(f1 - f1_prev)) >1*10^-8 && sum(abs(f2 - f2_prev)) >1*10^-8 && cont
   
   print(cont)
 }
-
-
-
-
-
-
-
-
