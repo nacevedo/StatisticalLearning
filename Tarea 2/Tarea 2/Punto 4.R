@@ -177,12 +177,43 @@ lines(h, MSE_final400, type = 'l', xlab = 'h', ylab = 'MSE', col = 9)
 
 legend('topright',legend = c('5 - Fold CV', '10 - Fold CV', 'LOOCV'),col=c("red", "blue","black"),lty=1, cex=0.8)
 
-plot(h, MSE_final5, type = 'l', xlab = 'h', ylab = 'MSE', main = '10 - Fold CV')
-h[which.min(MSE_final5)]
-min(MSE_final5)
+plot(h, MSE_final, type = 'l', xlab = 'h', ylab = 'MSE', main = '10 - Fold CV')
+h[which.min(MSE_final)]
+min(MSE_final)
 
 
 ### IC ###
+B = 500
+ybar_boot = c(rep(0,times=B)) # Creacion de vector vacio
+hh = 3.7
+N = 400
+
+for(i in 1:B){
+  sample = sample(seq(1:N), N, replace = T)
+  x_train = x[sample]
+  y_train = y[sample]
+  x_test = 3.8
+  
+  NN = length(x_test)
+  N2 = length(x_train)
+  mat=matrix(rep(0,times=NN*N2), ncol=N2)
+  
+  for(m in 1:NN){
+    cond = 0
+    zz=rep(x_test[m],times=N2)
+    for(j in 1:N2){
+      cond[j] = ifelse(abs(x_test[m]-x_train[j]) > hh, 0, 1)
+    }
+    bottom=sum((1-(zz-x_train)^2/hh)^2*cond)
+    mat[m,]=(1-(zz-x_train)^2/hh)^2*cond/bottom
+  }
+  
+  ybar_boot[i] = (mat%*%y_train)
+}
+
+
+plot(density(ybar_boot))  # Plot de medidas obtenidas con el bootstrap
+c(quantile(ybar_boot,0.025),quantile(ybar_boot,0.975))
 
 
 
@@ -211,7 +242,7 @@ for(i in 1:B){
     mat[m,]=(1-(zz-x_train)^2/hh)^2*cond/bottom
   }
   
-  ybar_boot[i] = (mat%*%y)[1]-(mat%*%y)[2]
+  ybar_boot[i] = (mat%*%y_train)[1]-(mat%*%y_train)[2]
 }
 
 
