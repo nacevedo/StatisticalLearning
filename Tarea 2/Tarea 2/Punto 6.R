@@ -41,10 +41,12 @@ x_val = test[,-14]
 pca = pcr(y_train~., data = x_train, scale = T, validation = "CV")
 summary(pca)
 
-predpca = predict(pca, x_val)    
+predpca = predict(pca, x_val, ncomp = 1:12)    
 msePCA = mean((y_val-predpca)^2)
 msePCA
-
+validationplot(pca)
+validationplot(pca, val.type="MSEP")
+predplot(pca)
 
 ###### PLS ###### 
 
@@ -56,6 +58,8 @@ predPLS = predict(pls, x_val)
 
 msePLS = mean((y_val-predPLS)^2)
 msePLS 
+plot(RMSEP(pls))
+predplot(pls)
 
 ###### Ridge ###### 
 
@@ -70,6 +74,7 @@ coef(mod_penRIDGE)
 predRIDGE = predict(mod_penRIDGE, as.matrix(x_val))    
 mseRIDGE = mean((y_val-predRIDGE)^2)
 mseRIDGE 
+plot(y_val,predRIDGE,  xlab = 'measured', ylab = 'predicted', main = 'Ridge Penalization')
 
 
 ###### Lasso #######
@@ -82,7 +87,9 @@ cvmodLASSO$lambda.min #Lambda mÃ­nimo
 mod_penLASSO = glmnet(as.matrix(x_train), y_train, alpha = 1, lambda = cvmodLASSO$lambda.min)
 coef(mod_penLASSO)
 
-predLASSO = predict(mod_penLASSO, as.matrix(x_val))    
+predLASSO = predict(mod_penLASSO, as.matrix(x_val))  
+plot(y_val,predLASSO,  xlab = 'measured', ylab = 'predicted', main = 'Lasso Penalization')
+
 mseLASSO = mean((y_val-predLASSO)^2)
 mseLASSO
 
@@ -93,6 +100,11 @@ msePCA
 msePLS
 mseRIDGE
 mseLASSO #El mejor
+
+x = c("PCA", "PLS", "Ridge", "Lasso")
+y = c(msePCA, msePLS, mseRIDGE, mseLASSO)
+library(lattice)
+dotplot(y~x, ylab = 'MSE', cex = 2, main = 'Comparación MSEs')
 
 # 2. Estime un modelo MARS para predecir Sales
 
@@ -116,7 +128,7 @@ for (i in 1:13)
   xr <- sapply(Boston, range);
   xp[, i] <- seq(xr[1, i], xr[2, i], len=nrow(Boston));
   xf <- predict(mars.fit, xp);
-  plot(xp[, i], xf, xlab = names(Boston)[i], ylab = "mdev", type = "l");
+  plot(xp[, i], xf, xlab = names(Boston)[i], ylab = "mdev pred", type = "l");
 }
 
 
