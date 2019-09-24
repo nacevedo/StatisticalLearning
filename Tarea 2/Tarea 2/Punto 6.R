@@ -47,6 +47,8 @@ msePCA
 validationplot(pca)
 validationplot(pca, val.type="MSEP")
 predplot(pca)
+plot(y_val,predpca,  xlab = 'measured', ylab = 'predicted', main = 'PCA')
+
 
 ###### PLS ###### 
 
@@ -139,18 +141,28 @@ mars.fit$coefficients
 predMARS= predict(mars.fit, as.matrix(x_val)) 
 mseMARS= mean((y_val-predMARS)^2)
 
+plot(y_val,predMARS,  xlab = 'measured', ylab = 'predicted', main = 'MARS')
+
+
+
+x = c("PCA", "PLS", "Ridge", "Lasso", "MARS")
+y = c(msePCA, msePLS, mseRIDGE, mseLASSO, mseMARS)
+library(lattice)
+dotplot(y~x, ylab = 'MSE', cex = 2, main = 'Comparación MSEs')
+
 
 # 3. Estime un modelo GAM para predecir Sales
 
-gams.fit <- gam(medv~s(crim)+s(rm)+s(age)+s(dis)+s(tax)+s(ptratio)+s(lstat)+zn+s(nox)+s(indus)+s(black),data=train)
+gams.fit <- gam(medv~s(crim)+s(rm)+s(age)+s(dis)+s(tax)+s(ptratio)+s(lstat)+s(zn)+s(nox)+s(indus)+s(black)+(chas)+(rad),data=train)
 
 
+par(mfrow=c(3,4))
 summary(gams.fit)
 plot.gam(gams.fit)
 
 
-par(mfrow=c(3,4))
-plot(gams.fit,se=T,col=4,lwd=2)
+
+plot(gams.fit,se=T,lwd=2)
 
 par(mfrow=c(1,1))
 plot(Boston$crim)
@@ -158,34 +170,24 @@ plot(Boston$crim)
 predGAMS= predict(gams.fit, x_val) 
 mseGAMS= mean((y_val-predGAMS)^2)
 
-gams.fit2=gam(medv~crim+s(rm)+s(dis)+s(tax)
-              +s(ptratio)+s(lstat),data=Boston)
-par(mfrow=c(2,4))
-plot(gams.fit2,se=T,col=4,lwd=2)
-
-anova(gams.fit,gams.fit2,test="Chi")
-anova(gams.fit2,gams.fit,test="F")
+plot(y_val,predGAMS,  xlab = 'measured', ylab = 'predicted', main = 'GAMS')
 
 
+x = c("PCA", "PLS", "Ridge", "Lasso", "MARS", "GAMS")
+y = c(msePCA, msePLS, mseRIDGE, mseLASSO, mseMARS, mseGAMS)
+library(lattice)
+dotplot(y~x, ylab = 'MSE', cex = 2, main = 'Comparación MSEs')
 
 
-################################################
-#Generalized Additive Models GAMS
-#Case: Poisson regression
-#Taken form: IDRE, UCLA
 
-p <- read.csv("https://stats.idre.ucla.edu/stat/data/poisson_sim.csv")
-p <- within(p, {
-  prog <- factor(prog, levels=1:3, labels=c("General", "Academic", 
-                                            "Vocational"))
-  id <- factor(id)
-})
-summary(p)
+### Prueba de hipótesis ###
+full =  gam(medv~s(crim)+s(rm)+s(age)+s(dis)+s(tax)
+                +s(ptratio)+s(lstat)
+                +s(zn)+s(nox)+s(indus)+s(black)+(chas)+(rad),data=train)
 
 
-poi=gam(num_awards ~ prog + bs(math,c(5,10,25)), family="poisson", data=p)
-summary(poi)
-anova(poi)
-plot(poi,all.terms=T)
-gam.check(poi)
+red = gam(medv~crim+s(rm)+s(age)+s(dis)+s(tax)+s(ptratio)+s(lstat)+s(zn)+s(nox)+s(indus)+s(black),data=train)
+
+anova(red,full,test="F")
+
 
