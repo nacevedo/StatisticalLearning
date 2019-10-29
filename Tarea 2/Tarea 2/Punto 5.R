@@ -132,7 +132,7 @@ h2_prev = -1
 N = length(Y)
 cont = 0
 
-while(abs(h1 - h1_prev)>1*10^-8 || abs(h2 - h2_prev) >1*10^-8){
+while((abs(h1 - h1_prev)>1*10^-8 || abs(h2 - h2_prev) >1*10^-8) && cont <= 10){
   cont = cont + 1
   h1_prev = h1
   h2_prev = h2
@@ -195,6 +195,7 @@ for(m in 1:N){
 ff = mat%*%y_train
 
 
+
 ### Walks ###
 hh = h2
 
@@ -219,4 +220,7 @@ for(m in 1:N){
 }
 
 ff2 = mat%*%y_train
-MSE = mean((ff+ff2+mean(y_train)-y_test)^2)
+MSE = mean((ff+ff2-y_test)^2)
+
+
+
