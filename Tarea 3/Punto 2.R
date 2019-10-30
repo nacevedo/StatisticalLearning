@@ -2,6 +2,8 @@
 
 # Funcion matriz de confusion
 confusion = function(actuales,p,threshold){
+  actuales = replace(actuales,actuales == -1, 0)
+  
   predecidos = ifelse(p>threshold,1,0)
   TP = sum(predecidos*actuales)
   FPv = vector(length = length(actuales))
