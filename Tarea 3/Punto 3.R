@@ -62,12 +62,13 @@ Punto3 <- function(x, y){
         } else{
           valores = c(rep(0,fil))
           xnew = matrix(0L,nrow=nrow(x), ncol=fil)
+          xnew = as.data.frame(xnew)
           
           for (m in 1:fil){
             valores[m] = combinacion[m,l]
             xnew[,m] = x[,valores[m]]
+            
           }
-          xnew = as.data.frame(xnew)
           fit = glm(y~.,data=xnew,family = "binomial")
           matriz[j,1] = paste(combinacion[,l], collapse = " ")
           matriz[j,2] = fit$aic
@@ -108,7 +109,32 @@ detach(car)
 car = car[,-1]
 
 Punto3(car,High)
-
-
+# 1 = CompPrice
+# 2 = Income
+# 3 = Advertising
+# 4 = Population
+# 5 = Price
+# 6 = ShelveLoc
+# 7 = Age
+# 8 = Education
+# 9 = Urban
+# 10 = US
 
 # c Metodo forward
+lr=glm(High~.,data=car,family="binomial")
+summary(lr)
+
+null_model=glm(High~1,data=car,family=binomial)
+summary(null_model)
+
+forward=step(null_model,scope=list(lower=formula(null_model),
+                                   upper=formula(lr)),direction="forward")
+# Deja ShelveLoc, Price, CompPrice, Advertising, Age, Income, US
+# 6, 5, 1, 3, 7, 2, 10
+# AIC = 204.61
+
+
+fit_forward=glm(formula(forward),data=car,family=binomial)
+summary(fit_forward)
+
+# Da igual esta vez
