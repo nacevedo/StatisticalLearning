@@ -68,7 +68,7 @@ predplot(pls)
 cvmodRIDGE = cv.glmnet(as.matrix(x_train), y_train, alpha = 0)
 cvmodRIDGE$lambda.min
 plot(cvmodRIDGE)
-cvmodRIDGE$lambda.min #Lambda mÃ­nimo
+cvmodRIDGE$lambda.min #Lambda mínimo
 
 mod_penRIDGE = glmnet(as.matrix(x_train), y_train, alpha = 0, lambda = cvmodRIDGE$lambda.min)
 coef(mod_penRIDGE)
