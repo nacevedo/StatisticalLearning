@@ -6,11 +6,15 @@ library(pROC)
 library(gbm)
 library(caret)
 library(e1071)
+library(mlr)
 library(C50)
 data(churn)
 
 train = churnTrain
 test = churnTest
+
+#train$churn = as.numeric(train$churn)
+#test$churn = as.numeric(test$churn)
 
 car = train
 High.test = test$churn
@@ -59,8 +63,16 @@ auc_bag
 auc_boo
 
 ########################### SVM ########################### 
+train = churnTrain
+test = churnTest
 
-rang = list(cost = c(0.01,0.05,0.1,1,2,5), gamma = c(0.1,0.5,1,2,4))
+train$churn = as.numeric(train$churn)
+test$churn = as.numeric(test$churn)
+
+car = train
+High.test = test$churn
+
+rang = list(cost = c(3,4,5,6), gamma = c(0.01,0.02,0.05,0.1))
 
 #Tunning en dos parametros de calibracion
 tune_churn = tune(svm, churn~., data = train, ranges = rang)
@@ -69,11 +81,20 @@ tune_churn
 
 
 #Modelo Calibrado
-svm_churn = svm(churn~., data = train, cost=2, gamma=.5, probability=T, kernel="radial")
+svm_churn = svm(churn~., data = train, cost = tune_churn$best.parameters$cost, gamma = tune_churn$best.parameters$gamma, probability=T, kernel="radial")
 
 pred_svm = predict(svm_churn, test, type = "response")
+pred_svm_prob = predict(svm_churn, test, type = "prob", probability = TRUE)
+
+
 
 roc_svm = roc(High.test, pred_svm)
 plot(roc_svm)
 auc_svm = auc(roc_svm)
+auc_svm
+
+###### printing all auc ######
+
+auc_bag
+auc_boo
 auc_svm
