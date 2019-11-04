@@ -15,7 +15,10 @@ y = injury
 
 #Eliminación de columnas con el mismo dato 
 x_b = x_b[vapply(x_b, function(x) length(unique(x)) > 1, logical(1L))]
+x_b = x_b[,-88]
 x_c = x_c[vapply(x_c, function(x) length(unique(x)) > 1, logical(1L))]
+x_c = x_c[,-c(181)]
+
 
 data_b = data.frame(x_b,y)
 data_c = data.frame(x_c,y)
@@ -62,7 +65,7 @@ lda_b #Ws
 plot(lda_b)
 
 predl_b = predict(lda_b,newdata=x_test_b)$class
-errorl_b = 1 - mean(abs(as.numeric(predl_b)==as.numeric(y_test)))
+errorl_b = 1 - mean(abs(predl_b==y_test))
 
 ########################### QDA ########################### 
 
@@ -85,8 +88,18 @@ model_b <- caret::train(y_train~.,
 
 # print cv scores
 summary(model_b)
+summary(model_b)
 
-predlog_b = predict(model, x_test_b)
+model_b$finalModel$fitted.values
+coef(model_b$finalModel)[1,]
+#Hay que ver con estos cooeficientes comoo sacar las 5 más importantes 
+
+coef(model_b$finalModel)[1,]
+coef(model_b$finalModel)[2,]
+#Puede sacar los 5 más grandes de la combinación de esas dos listas 
+
+
+predlog_b = predict(model_b, x_test_b)
 errorlog_b = 1- mean(abs((predlog_b)==(y_test)))
 
 ########################### Print Errores ########################### 
@@ -98,7 +111,6 @@ errorlog_b  #Error en LR
 
 ########################### LDA ########################### 
 
-train_c = train_c[, -c(52,  58,  77,  90,  94, 107, 158)]
 
 lda_c = lda(y_train~., data = train_c)
 lda_c #Ws
@@ -129,7 +141,7 @@ model_c <- caret::train(y_train~.,
 # print cv scores
 summary(model_c)
 
-predlog_c = predict(model, x_test_c)
+predlog_c = predict(model_c, x_test_c)
 errorlog_c = 1- mean(abs((predlog_c)==(y_test)))
 
 ########################### Print Errores ########################### 
@@ -152,7 +164,6 @@ data_test = cbind(x_test_1, x_test_2, y_test)
 
 ########################### LDA ########################### 
 
-data_train = data_train[, -c(78, 235, 273, 364)]
 
 lda = lda(y_train~., data = data_train)
 lda #Ws
