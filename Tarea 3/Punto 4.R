@@ -1,4 +1,6 @@
 # Punto 4
+
+library(Rfast)
 # 1 Generar
 #Generacion de inputs y tamano de muestra
 N=500
@@ -54,3 +56,39 @@ AUCnuestro(test$Y,predicted$posterior[,2])
 
 
 # Punto 3
+
+
+
+#paso 0
+train = sample(1:length(y_train),175)
+x_grupo1 = x_train[-train,]
+y_grupo1 = y_train[-train]
+x_grupo2 = x_train[train,]
+y_grupo2 = y_train[train]
+
+#paso 1
+
+media_x_g1 = colMeans(x_grupo1)
+media_x_g2 = colMeans(x_grupo2)
+
+var_x_g1 = var(x_grupo1)
+var_x_g2 = var(x_grupo2)
+
+#paso 2 
+
+#denominador
+
+p_g1 = rep(0,length(x_grupo1))
+p_g2 = rep(0,length(x_grupo2))
+
+for(i in 1:length(x_train[,1])){
+  
+  p_g1[i] = dmvnorm(x_train[i,], mu = media_x_g1, sigma = var_x_g1)
+  p_g2[i] = dmvnorm(x_train[i,], mu = media_x_g2, sigma = var_x_g2)
+  
+}
+
+#paso 3
+
+x_grupo1 = x_grupo1[p_g1 > p_g2]
+x_grupo2 = x_grupo2[p_g1 <= p_g2]
