@@ -76,7 +76,6 @@ rang = list(cost = c(3,4,5,6), gamma = c(0.01,0.02,0.05,0.1))
 
 #Tunning en dos parametros de calibracion
 tune_churn = tune(svm, churn~., data = train, ranges = rang)
-
 tune_churn
 
 
