@@ -2,7 +2,7 @@
 library(e1071)
 library(sfsmisc)
 
-make.grid = function(x, n = 75) {
+make.grid = function(x, n = 20) {
   grange = apply(x, 2, range)
   x1 = seq(from = grange[1,1], to = grange[2,1], length = n)
   x2 = seq(from = grange[1,2], to = grange[2,2], length = n)
@@ -35,12 +35,15 @@ abline(beta0 / beta[2], -beta[1] / beta[2])
 abline((beta0 - 1) / beta[2], -beta[1] / beta[2], lty = 2)
 abline((beta0 + 1) / beta[2], -beta[1] / beta[2], lty = 2)
 
+beta0 / beta[2]
+
 dist1 = (beta0 - 1) / beta[2] - beta0 / beta[2]
 dist2 = (beta0 + 1) / beta[2] - beta0 / beta[2]
+ancho1 = 2*dist1
 
 ### cortar árboles
 #circular árboles a cortar
-points(x[svmfit$index,], pch = 5, cex = 2)
+points(x[svmfit$index,], pch = 1, cex = 2)
 
 dat1 = dat[-svmfit$index,]
 
@@ -69,6 +72,7 @@ abline((beta0 + 1) / beta[2], -beta[1] / beta[2], lty = 2)
 
 dist1 = (beta0 - 1) / beta[2] - beta0 / beta[2]
 dist2 = (beta0 + 1) / beta[2] - beta0 / beta[2]
+ancho2 = 2*dist1
 
-
+diferencia = ancho2 - ancho1
 
