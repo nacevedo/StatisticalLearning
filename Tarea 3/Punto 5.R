@@ -74,7 +74,7 @@ ygorro = (y==2)*1+(y==1)*-1
 ybarra = rowMeans(ygorro)
 yfinal = (ybarra<0)*-1+(ybarra>=0)*1
 
-aucfinal = mean(auc)
+aucfinal = auc(y_test,yfinal)
 
 
 

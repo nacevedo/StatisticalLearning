@@ -59,20 +59,22 @@ lda_for
 summary(lda_for)
 lda_for$formula
 
-lda_b = lda(y_train ~ Z40 + Z73 + Z89 + Z136 + Z162 + Z163 + Z164 + Z166 + 
-              Z172, data = train_b)
+lda_b = lda(lda_for$formula, data = train_b)
 lda_b #Ws
 plot(lda_b)
 
 predl_b = predict(lda_b,newdata=x_test_b)$class
 errorl_b = 1 - mean(abs(predl_b==y_test))
 
+predl_b = ifelse(predl_b == "None",0,ifelse(predl_b == "Mild",1,2))
+y_test = ifelse(y_test == "None",0,ifelse(y_test == "Mild",1,2))
+auc_b = auc(predl_b,y_test)
 ########################### QDA ########################### 
 
-qda_b = qda(y_train~., data = train_b)
+#qda_b = qda(y_train~., data = train_b)
 
-predq_b = predict(qda_b, newdata = x_test_b)$class
-errorq_b = 1 - mean(abs(as.numeric(predq_b)==as.numeric(y_test)))
+#predq_b = predict(qda_b, newdata = x_test_b)$class
+#errorq_b = 1 - mean(abs(as.numeric(predq_b)==as.numeric(y_test)))
 
 ########################### Regresión Logística ########################### 
 
@@ -101,10 +103,13 @@ coef(model_b$finalModel)[2,]
 
 predlog_b = predict(model_b, x_test_b)
 errorlog_b = 1- mean(abs((predlog_b)==(y_test)))
+predl_b = ifelse(predl_b == "None",0,ifelse(predl_b == "Mild",1,2))
+auclog_b = auc(predl_b,y_test)
+
 
 ########################### Print Errores ########################### 
 errorl_b  #Error en LDA
-errorq_b  #Error en Qda
+#errorq_b  #Error en Qda
 errorlog_b  #Error en LR
 
 ########################### Huella Química ########################### 
