@@ -36,10 +36,7 @@ Punto3 <- function(x, y){
       matriz[j,1] = paste(combinacion, collapse = " ")
       fit = glm(y~.,data=x,family = "binomial")
       matriz[j,2] = fit$aic
-      
-      extractAIC(fit, show.option=TRUE)
-      options(AIC="BIC")
-      matriz[j,3] = extractAIC(fit)[2]
+      matriz[j,3] = BIC(fit)
       
       j = j+1
       
@@ -52,10 +49,7 @@ Punto3 <- function(x, y){
           matriz[j,1] = paste(combinacion[,l], collapse = " ")
           fit = glm(y~x[,combinacion[l]],family = "binomial")
           matriz[j,2] = fit$aic
-          
-          extractAIC(fit, show.option=TRUE)
-          options(AIC="BIC")
-          matriz[j,3] = extractAIC(fit)[2]
+          matriz[j,3] = BIC(fit)
           
           j = j+1
           
@@ -72,10 +66,7 @@ Punto3 <- function(x, y){
           fit = glm(y~.,data=xnew,family = "binomial")
           matriz[j,1] = paste(combinacion[,l], collapse = " ")
           matriz[j,2] = fit$aic
-          
-          extractAIC(fit, show.option=TRUE)
-          options(AIC="BIC")
-          matriz[j,3] = extractAIC(fit)[2]
+          matriz[j,3] = BIC(fit)
           
           j = j+1
         }
@@ -86,13 +77,14 @@ Punto3 <- function(x, y){
   valores = as.data.frame(matriz)
   colnames(valores) <- c("Variables","AIC", "BIC") 
   
+  minAIC = valores[which.min(valores$AIC),]
+  minBIC = valores[which.min(valores$BIC),]
   return(valores)
   return(minAIC)
   return(BIC)
   
   # Se usa el del AIC porque el deviance tiene mucha varianza
-  minAIC = valores[which.min(valores$AIC),]
-  minBIC = valores[which.min(valores$BIC),]
+
 }
 
 

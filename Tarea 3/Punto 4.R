@@ -39,13 +39,21 @@ colnames(test) = c('X1','X2', 'Y')
 
 ## LDA
 library(MASS)
+require(ggplot2)
+require(scales)
+require(gridExtra)
 lda=lda(Y~.,data= train)
 lda #Ws
-plot(lda)
 
 predicted = predict(lda, test[,1:2], probaility = TRUE)
+
+library(ggplot2)
+p1 <- ggplot(test) + geom_point(aes(lda.LD1, colour = train$Y, shape = train$Y), size = 2.5) 
+
+
 # Otra
 roc=roc(test$Y,predicted$posterior[,2])
+plot(roc)
 
 # Nuestra
 ROC(test$Y,predicted$posterior[,2])

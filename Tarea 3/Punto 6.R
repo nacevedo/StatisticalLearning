@@ -103,7 +103,11 @@ tune
 
 # Modelo Calibrado
 # Lineal
+library(e1071)
 svm_lineal = svm(y~., data = train, cost = tune$best.parameters$cost, gamma = tune$best.parameters$gamma, probability=T, kernel="linear")
+print(svm_lineal)
+plot(svm_lineal,train,train.x2~train.x1)
+
 pred_svm_lineal = predict(svm_lineal, test, type = "response")
 pred_svm_prob_lineal = predict(svm_lineal, test, type = "prob", probability = TRUE)
 
@@ -115,6 +119,7 @@ auc_svm_lineal
 
 # Radial
 svm_radial = svm(y~., data = train, cost = tune$best.parameters$cost, gamma = tune$best.parameters$gamma, probability=T, kernel="radial")
+plot(svm_radial,train,train.x2~train.x1)
 pred_svm_radial = predict(svm_radial, test, type = "response")
 pred_svm_prob_radial = predict(svm_radial, test, type = "prob", probability = TRUE)
 
@@ -126,6 +131,8 @@ auc_svm_radial
 
 # Polinomial
 svm_poli = svm(y~., data = train, cost = tune$best.parameters$cost, gamma = tune$best.parameters$gamma, probability=T, kernel="polynomial")
+plot(svm_poli,train,train.x2~train.x1)
+
 pred_svm_poli = predict(svm_poli, test, type = "response")
 pred_svm_prob_poli = predict(svm_poli, test, type = "prob", probability = TRUE)
 
@@ -179,6 +186,9 @@ tune
 # Modelo Calibrado
 # Lineal
 svm_lineal = svm(y~., data = train, cost = tune$best.parameters$cost, gamma = tune$best.parameters$gamma, probability=T, kernel="linear")
+plot(svm_lineal,train,train.x2~train.x1)
+
+
 pred_svm_lineal = predict(svm_lineal, test, type = "response")
 pred_svm_prob_lineal = predict(svm_lineal, test, type = "prob", probability = TRUE)
 
