@@ -260,7 +260,8 @@ for (i in 1:length(y_test)){
   }
   
 }
-# Falta calcular probabilidad de estar en 1 y en 0
+
+
 grupo11_test = grupo11_test[2:nrow(grupo11_test),]
 grupo12_test = grupo12_test[2:nrow(grupo12_test),]
 grupo13_test = grupo13_test[2:nrow(grupo13_test),]
@@ -282,9 +283,13 @@ ROC(test$Y,prob1)
 AUCnuestro(test$Y,prob1)
 
 library(mda)
+library(pROC)
 modelo = mda(Y~., data = train)
 pred_mda=predict(modelo,test,type="posterior")
 roc_mda=roc(test$Y,pred_mda[,2])
+plot((1-roc_mda$specificities),roc_mda$sensitivities, ylab = 'Sensibilidad', xlab = '1-Especificidad', type = 'l', xlim = c(0,1), main = 'Curva ROC')
+abline(c(0,0),c(1,1), col = 2)
+
 plot(roc_mda)
 auc_mda=auc(roc_mda)
 auc_mda
