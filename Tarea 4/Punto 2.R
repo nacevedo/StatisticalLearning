@@ -64,36 +64,10 @@ auc_xg
 
 ########################### Stacking ########################### 
 # bstSparse, boost, rand_forest
-library(caret)
-library(nnet)
-library(e1071)
-library(caretEnsemble)
-
-
-
-# Example of Stacking algorithms
-# create submodels
-# Helper packages
-library(rsample)   # for creating our train-test splits
-library(recipes)   # for minor feature engineering tasks
-
-# Modeling packages
-library(h2o)       # for fitting stacked models
-
-
-# Make sure we have consistent categorical levels
-blueprint <- recipe(X5 ~ ., data = train) %>%
-  step_other(all_nominal(), threshold = 0.005)
-
-# Create training & test sets for h2o
-train_h2o <- prep(blueprint, training = train, retain = TRUE) %>%
-  juice() %>%  as.h2o()
-test_h2o <- prep(blueprint, training = ames_train) %>%
-  bake(new_data = ames_test) %>%
-  as.h2o()
-
-# Get response and feature names
-Y <- "Sale_Price"
-X <- setdiff(names(ames_train), Y)
-
-
+#Predicting using random forest model
+testSet = data.frame(pred_rf = pred_rf, pred_boo, pred_xg)
+testSet$pred_avg<-(testSet$pred_rf+testSet$pred_boo+testSet$pred_xg)/3
+roc_stacking = roc(test$X5, testSet$pred_avg)
+plot(roc_stacking)
+auc_stacking=auc(roc_stacking)
+auc_stacking
