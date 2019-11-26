@@ -36,10 +36,13 @@ library("VIM")
 matrixplot(data, interactive = F)
 aggr(data,prop=F,numbers=T)
 # slope, ca ,thal
-# ca, thal
+# ca, thal son NMAR
+# El resto son missing at random
 # chol, slope, ca ,thal
 
+
 marginplot(data[c("thal","ca")],col = c(1:3))
+marginplot(data[c("thal","slope")],col = c(1:3))
 
 
 # Observacion
@@ -77,11 +80,16 @@ summary(pooled)
 
 
 # 5. Quitar filas
-sinfilas = na.omit(data)
+data3 = data
+data3$ca  = NULL
+sinfilas = na.omit(data3)
+
 thalach = sinfilas$thalach
 x = sinfilas[,1:12]
 x = x[,-8]
 x = x[,-11]
+x$fbs = NULL
 # NO CORRE PORQUE ES UNA SOLA FILA
 
-fit2 = lm(thalach, ., data = x)
+fit2 = lm(thalach ~ ., data = x)
+summary(fit2)
