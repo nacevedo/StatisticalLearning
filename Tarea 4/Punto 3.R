@@ -6,7 +6,7 @@ puntos <- read_table2("puntos.txt", col_names = FALSE)
 
 costo_dist <- function(x1,x2,y1,y2){ 
   dist = abs(x1-x2) + abs(y1-y2)
-  res = 10 * dist
+  res = 10 * dist^2
   return(res) 
 }
 
