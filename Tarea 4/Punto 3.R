@@ -14,15 +14,17 @@ costo_dist <- function(x1,x2,y1,y2){
 
 #####################################################################
 #K MEDIAS : 3 sitios
+library(factoextra)
 
 KM = kmeans(puntos,3)
 
 #funcion el libreria cluster
-clusplot(puntos,KM$cluster)  #la misma grafica
-plot(puntos)
+clusplot(puntos,KM$cluster, main = "Grupos de puntos de venta")  #la misma grafica
+plot(puntos,)
 points(KM$centers, col="red", pch = 2, cex = 2)
+fviz_cluster(KM, puntos)
 
-centros3 = KM$centers
+
 
 ###################################### Literal 2 #####################################
 
