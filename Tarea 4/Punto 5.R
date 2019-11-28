@@ -32,7 +32,7 @@ mean(!complete.cases(data$ca)) # Porcentaje faltan ca
 
 # Patrones
 library(data.table)
-library("VIM")
+instal("VIM", dependencies = TRUE)
 matrixplot(data, interactive = F)
 aggr(data,prop=F,numbers=T)
 # slope, ca ,thal
@@ -41,8 +41,16 @@ aggr(data,prop=F,numbers=T)
 # chol, slope, ca ,thal
 
 
-marginplot(data[c("thal","ca")],col = c(1:3))
-marginplot(data[c("thal","slope")],col = c(1:3))
+
+marginplot(data[c("thal","ca")],alpha = 0.8, 
+           col = c(1:3))
+
+marginplot(data[c("thal","slope")],alpha = 0.8, 
+           col = c(1:3))
+
+marginplot(data[c("ca","slope")],col = c(1:3))
+
+marginplot(data[c("ca","chol")],col = c(1:3))
 
 
 # Observacion

@@ -24,6 +24,8 @@ rownames(puntaje) = comidas
 
 puntaje[lower.tri(puntaje)] = t(puntaje)[lower.tri(puntaje)]
 
+distancias = dist(puntaje)
+
 
 ### 1. 2 Clusters -------
 hc <- hclust(dist(puntaje), method="ave")  #con distancia promedio entre clusters
