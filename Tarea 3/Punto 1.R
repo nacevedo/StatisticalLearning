@@ -36,6 +36,7 @@ abline((beta0 - 1) / beta[2], -beta[1] / beta[2], lty = 2)
 abline((beta0 + 1) / beta[2], -beta[1] / beta[2], lty = 2)
 
 beta0 / beta[2]
+-beta[1] / beta[2]
 
 dist1 = (beta0 - 1) / beta[2] - beta0 / beta[2]
 dist2 = (beta0 + 1) / beta[2] - beta0 / beta[2]
