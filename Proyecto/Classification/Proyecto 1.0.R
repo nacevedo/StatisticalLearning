@@ -43,23 +43,59 @@ summary(prep)
 # describe check all columns
 describe(prep[, c(1, 19)])
 
+Train$Browser = as.factor(Train$Browser)
+Train$TrafficType = as.factor(Train$TrafficType)
+Train$Region = as.factor(Train$Region)
+Train$VisitorType = as.factor(Train$VisitorType)
+Train$Month = as.factor(Train$Month)
+Train$OperatingSystems = as.factor(Train$OperatingSystems)
+
+
 # Organizar datos
 
-names_dummies = c("Browser","TrafficType", "Region","VisitorType","Month", "OperatingSystems")
+#names_dummies = c("Browser","TrafficType", "Region","VisitorType","Month", "OperatingSystems")
 
-prep_fin = dummy.data.frame(prep, names = names_dummies, dummy.classes = getOption("dummy.classes"))
-prep_fin["Weekend"][prep_fin["Weekend"]==TRUE] = 1
+#rep_fin = dummy.data.frame(prep, names = names_dummies, dummy.classes = getOption("dummy.classes"))
+#prep_fin["Weekend"][prep_fin["Weekend"]==TRUE] = 1
 
-prep_fin = prep_fin[,-1]
+#prep_fin = prep_fin[,-1]
 
-test_fin = prep_fin[901:1065,]
-train_fin = prep_fin[1:900,]
+#test_fin = prep_fin[901:1065,]
+#train_fin = prep_fin[1:900,]
 
-# Correlaciones para las variables no dummies
-vc = cor(prep_fin[,1:10])
+# Correlaciones para las variables no categoricas
+vc = cor(Train[c("Administrative", "Administrative_Duration", "Informational", "Informational_Duration", "ProductRelated", "ProductRelated_Duration", "BounceRates", "ExitRates", "PageValues", "SpecialDay", "Revenue")])
 corrplot(vc,method="circle")
 
-prep_xxs = scale(prep_fin, center=F) 
+Train[c("Administrative", "Administrative_Duration", "Informational", "Informational_Duration", "ProductRelated", "ProductRelated_Duration", "BounceRates", "ExitRates", "PageValues", "SpecialDay", "Revenue")]= scale(Train[c("Administrative", "Administrative_Duration", "Informational", "Informational_Duration", "ProductRelated", "ProductRelated_Duration", "BounceRates", "ExitRates", "PageValues", "SpecialDay", "Revenue")], center=F) 
+
+#Outliers 
+library(DMwR)
+data = CTG[-1,]
+library(tidyverse)
+data = data %>% select(LB,AC,FM,UC,ASTV,MSTV,ALTV)
+
+outlier.scores <- lofactor(data, k=5) ## CUÁNTOS VECINOS USAR??
+plot(density(outlier.scores))
+
+# pick top 5 as outliers
+outliers <- order(outlier.scores, decreasing=T)[1:5]
+labels <- 1:n
+labels[-outliers] <- "."
+biplot(prcomp(data), cex=.8, xlabs=labels)
+# who are outliers
+print(outliers)
+print(data[outliers,])
+
+n <- nrow(data)
+pch <- rep(".", n)
+pch[outliers] <- "+"
+col <- rep("black", n)
+col[outliers] <- "red"
+pairs(data, pch=pch, col=col)
+
+
+
 
 #DATA FINAL 
 
