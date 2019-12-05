@@ -214,11 +214,11 @@ legend(1300, 1600, legend=levels(train$label),
 library(kernlab)
 library(caTools)
 
-train_index = sample.split(train, SplitRatio = .25)
+train_index = sample.split(train$label, SplitRatio = .20)
 train2 = subset(train, train_index == TRUE)
 
-kpc <- kpca(~.,data=as.data.frame(train2[,-train$label]),kernel = "rbfdot",
-            kpar=list(sigma=1.1),features=2, eta=0.01, maxiter=10)
+kpc <- kpca(~.,data=as.data.frame(train2[,-train2$label]),kernel = "rbfdot",
+            kpar=list(sigma=1.1),features=2, eta=0.001, maxiter=10)
 #print the principal component vectors
 plot(pcv(kpc),col=train$label)
 
