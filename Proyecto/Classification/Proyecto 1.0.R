@@ -13,132 +13,38 @@ library(e1071)
 library(mlr)
 library(C50)
 
-
-Train <- read_delim("Train.csv", ";", escape_double = FALSE,  trim_ws = TRUE)
-Test <- read_delim("Test.csv", ";", escape_double = FALSE,  trim_ws = TRUE)
-
-Train = as.data.frame(Train)
-Test = as.data.frame(Test)
-
-prep = rbind(Train,Test)
-index = c(901:1065)
-
-# Exploración de los datos
-# http://www.rdatamining.com/docs/data-exploration-and-visualization-with-r
-
-# number of rows
-nrow(prep)
-
-# number of columns
-ncol(prep)
-
-# dimensionality
-dim(prep)
-
-# column names
-names(prep)
-
-summary(prep)
-
-# describe check all columns
-describe(prep[, c(1, 19)])
-
-Train$Browser = as.factor(Train$Browser)
-Train$TrafficType = as.factor(Train$TrafficType)
-Train$Region = as.factor(Train$Region)
-Train$VisitorType = as.factor(Train$VisitorType)
-Train$Month = as.factor(Train$Month)
-Train$OperatingSystems = as.factor(Train$OperatingSystems)
-
-
-# Organizar datos
-
-#names_dummies = c("Browser","TrafficType", "Region","VisitorType","Month", "OperatingSystems")
-
-#rep_fin = dummy.data.frame(prep, names = names_dummies, dummy.classes = getOption("dummy.classes"))
-#prep_fin["Weekend"][prep_fin["Weekend"]==TRUE] = 1
-
-#prep_fin = prep_fin[,-1]
-
-#test_fin = prep_fin[901:1065,]
-#train_fin = prep_fin[1:900,]
-
-# Correlaciones para las variables no categoricas
-vc = cor(Train[c("Administrative", "Administrative_Duration", "Informational", "Informational_Duration", "ProductRelated", "ProductRelated_Duration", "BounceRates", "ExitRates", "PageValues", "SpecialDay", "Revenue")])
-corrplot(vc,method="circle")
-
-Train[c("Administrative", "Administrative_Duration", "Informational", "Informational_Duration", "ProductRelated", "ProductRelated_Duration", "BounceRates", "ExitRates", "PageValues", "SpecialDay", "Revenue")]= scale(Train[c("Administrative", "Administrative_Duration", "Informational", "Informational_Duration", "ProductRelated", "ProductRelated_Duration", "BounceRates", "ExitRates", "PageValues", "SpecialDay", "Revenue")], center=F) 
-
-#Outliers 
-library(DMwR)
-data = CTG[-1,]
-library(tidyverse)
-data = data %>% select(LB,AC,FM,UC,ASTV,MSTV,ALTV)
-
-outlier.scores <- lofactor(data, k=5) ## CUÁNTOS VECINOS USAR??
-plot(density(outlier.scores))
-
-# pick top 5 as outliers
-outliers <- order(outlier.scores, decreasing=T)[1:5]
-labels <- 1:n
-labels[-outliers] <- "."
-biplot(prcomp(data), cex=.8, xlabs=labels)
-# who are outliers
-print(outliers)
-print(data[outliers,])
-
-n <- nrow(data)
-pch <- rep(".", n)
-pch[outliers] <- "+"
-col <- rep("black", n)
-col[outliers] <- "red"
-pairs(data, pch=pch, col=col)
-
-
-
-
-#DATA FINAL 
-
-test_xxs = prep_fin[901:1065,]
-train_xxs = prep_fin[1:900,]
-test_xxs[test_xxs == "NaN"] = 0
-
-#DATA PRUEBAS CALIBRAR #### ¡¡datos están escalados!! ### 
-
-sample = sample.split(train_xxs$Revenue, SplitRatio = .75)
-train_prueba = subset(train_xxs, sample == TRUE)
-test_prueba  = subset(train_xxs, sample == FALSE)
-dim(train_prueba)
-dim(test_prueba)
-
 ########################### SVM ########################### 
+library(caTools)
+# index_train = sample.split(Train_final$Revenue,SplitRatio = 0.75)
+# train = subset(Train_final,index_train==TRUE)
+# test = subset(Train_final,index_train==FALSE)
 
-rang = list(cost = c(250,275,300,325,330,350), gamma = c(0.0001,0.0005,0.0008,0.001))
+
+
+
+rang = list(cost = c(175,200,225,250,250,275,300,325,330,350), gamma = c(0.0001,0.0005,0.0008,0.001,0.0015,0.002))
+rang = list(cost = c(175,200,225,250,250,275,300,325,330,350,375,400), gamma = c(0.001,0.0015,0.002,0.003,0.004,0.005,0.006,0.007, 0.008, 0.009))
+
 
 #Tunning en dos parametros de calibracion
-tune = tune(svm, Revenue~., data = train_prueba, ranges = rang)
+tune = tune(svm, Revenue~., data = Train_final, ranges = rang)
 tune
+svm_c = svm(Revenue~., data = Train_final, cost = tune$best.parameters$cost, gamma = tune$best.parameters$gamma, probability=T, kernel="radial")
 
-#Modelo Calibrado
-svm_c = svm(Revenue~., data = train_prueba, cost = tune$best.parameters$cost, gamma = tune$best.parameters$gamma, probability=T, kernel="radial")
-
-pred_svm = predict(svm_c, test_prueba[,-56], type = "response")
-pred_svm_prob = predict(svm, test_prueba[,-56], type = "prob", probability = TRUE)
-
-roc_svm = roc(test_prueba$Revenue, pred_svm)
-plot(roc_svm)
-auc_svm = auc(roc_svm)
-auc_svm
+pred_svm = predict(svm_c, Test[,-18], type = "prob", probability = TRUE)
+prob = predict(svm_c, Test[,-18])
 
 
+prediccion = as.numeric(prob)
+prediccion[prediccion == 1] = 0
+prediccion[prediccion == 2] = 1
 
-pred_svm[pred_svm > 0] = 1
-pred_svm[pred_svm <= 0] = 0
 
-df = cbind(index,pred_svm)
+index = c(901:1065)
+df = cbind(index,prediccion)
 colnames(df) = c("Id","Predicted")
-  
-write.csv(df,file="submission.csv", row.names = F)
+
+write.csv(df,file="submission1.csv", row.names = F)
 
 ########################### LDA ########################### 
 library(klaR)
