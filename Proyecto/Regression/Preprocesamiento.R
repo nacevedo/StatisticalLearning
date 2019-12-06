@@ -515,3 +515,78 @@ Test$Joined = NULL
 
 aggr(Train,prop=F,numbers=T)
 Train = na.omit(Train)  
+
+# Outliers ----
+library(DMwR)
+library(tidyverse)
+x = Train
+x$Wage = NULL
+x[factor_names] = NULL
+x = scale(x, center = FALSE, scale = TRUE)
+
+outlier.scores <- lofactor(x, k=5) ## CUÁNTOS VECINOS USAR??
+
+# pick top 5 as outliers
+outliers <- order(outlier.scores, decreasing=T)[1:round(0.003*nrow(x))]
+labels <- 1:length(outlier.scores)
+labels[-outliers] <- "."
+biplot(prcomp(x), cex=.8, xlabs=labels, na.rm = TRUE)
+biplot(prcomp(x), cex=.8, xlabs=labels, na.rm = TRUE, xlim = c(-0.08,0.04), ylim = c(-0.02,0.1))
+
+# who are outliers
+print(outliers)
+print(Train[outliers,])
+
+Train = Train[-outliers,]
+
+
+################ MUCHAS PRUEBAS PARA QUE SIRVIERAN LOS DATOS #############
+
+
+
+train = Train
+test = Test
+
+fn = names(Filter(is.factor, Train))
+
+train = sapply(train, as.numeric)
+train = as.data.frame(train)
+
+train$Club = as.factor(train$Club)
+train$`Preferred Foot` = as.factor(train$`Preferred Foot`)
+train$`Body Type` = as.factor(train$`Body Type`)
+train$`Work Rate` = as.factor(train$`Work Rate`)
+train$Position = as.factor(train$Position)
+
+test = sapply(test, as.numeric)
+test = as.data.frame(test)
+
+test$Club = as.factor(test$Club)
+test$`Preferred Foot` = as.factor(test$`Preferred Foot`)
+test$`Body Type` = as.factor(test$`Body Type`)
+test$`Work Rate` = as.factor(test$`Work Rate`)
+test$Position = as.factor(test$Position)
+
+todos = rbind(train,test)
+
+todos$Club = as.factor(todos$Club)
+todos$`Preferred Foot` = as.factor(todos$`Preferred Foot`)
+todos$`Body Type` = as.factor(todos$`Body Type`)
+todos$`Work Rate` = as.factor(todos$`Work Rate`)
+todos$Position = as.factor(todos$Position)
+
+todos$Wage = NULL
+
+library(dummies)
+
+new_todos <- dummy.data.frame(todos, sep = ".")
+names(new_todos)
+
+x_train = new_todos[1:7947,]
+x_test = new_todos[7948:9947,]
+
+xxx = test
+xxx$Wage = NULL
+sum(is.na(train))
+sum(is.na(test))
+aggr(xxx,prop=F,numbers=T)

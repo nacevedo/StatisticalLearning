@@ -13,19 +13,13 @@ library(nnet)
 library(mgcv)
 library(mda)
 
-
-y_train = train$medv
-x_train = train[,-14]
-
-y_val = test$medv
-x_val = test[,-14]
-
+index = seq(8001,10000,1)
 ###### PCA ###### 
 
 pca = pcr(Wage~., data = train, scale = T, validation = "CV")
 summary(pca)
 
-predpca = predict(pca, test[,-50], ncomp = 1:12)    #cambiar el 50
+predpca = predict(pca, test[,-22], ncomp = 1:21)    #cambiar el 50
 
 #msePCA = mean((y_val-predpca)^2)
 #msePCA
@@ -41,7 +35,7 @@ pls = plsr(Wage ~., data = train, scale = T, validation = "CV")
 
 summary(pls)
 
-predPLS = predict(pls, test[,-50]) #cambiar 50    
+predPLS = predict(pls, test[,-17]) #cambiar 50    
 
 #msePLS = mean((y_val-predPLS)^2)
 #msePLS 
@@ -50,15 +44,22 @@ predPLS = predict(pls, test[,-50]) #cambiar 50
 
 ###### Ridge ###### 
 
-cvmodRIDGE = cv.glmnet(as.matrix(train[,-50]), train$Wage, alpha = 0) #cambiar
+cvmodRIDGE = cv.glmnet(as.matrix(x_train), train$Wage, alpha = 0) #cambiar
 cvmodRIDGE$lambda.min
 plot(cvmodRIDGE)
 cvmodRIDGE$lambda.min #Lambda m?nimo
 
-mod_penRIDGE = glmnet(as.matrix(train[,-50]), train$Wage, alpha = 0, lambda = cvmodRIDGE$lambda.min) #cambiar 50
+mod_penRIDGE = glmnet(as.matrix(x_train), train$Wage, alpha = 0, lambda = cvmodRIDGE$lambda.min) #cambiar 50
 coef(mod_penRIDGE)
 
-predRIDGE = predict(mod_penRIDGE, as.matrix(test[,-50])) #cambiar 50   
+predRIDGE = predict(mod_penRIDGE, as.matrix(x_test)) #cambiar 50  
+
+
+df = cbind(index,predRIDGE)
+colnames(df) = c("Id","Predicted")
+
+write.csv(df,file="submission_r.csv", row.names = F)
+
 #mseRIDGE = mean((y_val-predRIDGE)^2)
 #mseRIDGE 
 #plot(y_val,predRIDGE,  xlab = 'measured', ylab = 'predicted', main = 'Ridge Penalization')
@@ -66,15 +67,20 @@ predRIDGE = predict(mod_penRIDGE, as.matrix(test[,-50])) #cambiar 50
 
 ###### Lasso #######
 
-cvmodLASSO = cv.glmnet(as.matrix(train[,-50]), train$Wage, alpha = 1)
+cvmodLASSO = cv.glmnet(as.matrix(x_train), train$Wage, alpha = 1)
 cvmodLASSO$lambda.min
 plot(cvmodLASSO)
 cvmodLASSO$lambda.min #Lambda mínimo
 
-mod_penLASSO = glmnet(as.matrix(train[,-50]), train$Wage, alpha = 1, lambda = cvmodLASSO$lambda.min)
+mod_penLASSO = glmnet(as.matrix(x_train), train$Wage, alpha = 1, lambda = cvmodLASSO$lambda.min)
 coef(mod_penLASSO)
 
-predLASSO = predict(mod_penLASSO, as.matrix(test[,-50]))  
+predLASSO = predict(mod_penLASSO, as.matrix(x_test))  
+
+df = cbind(index,predLASSO)
+colnames(df) = c("Id","Predicted")
+
+write.csv(df,file="submission_l.csv", row.names = F)
 
 #plot(y_val,predLASSO,  xlab = 'measured', ylab = 'predicted', main = 'Lasso Penalization')
 
@@ -97,11 +103,11 @@ predLASSO = predict(mod_penLASSO, as.matrix(test[,-50]))
 ###### MARS #######
 
 # FIT AN ADDITIVE MARS MODEL
-mars.fit <- mars(train[, -14], train$Wage, degree = 1, prune = TRUE, forward.step = TRUE) #cambiar 14
+mars.fit <- mars(train[, -16], train$Wage, degree = 1, prune = TRUE, forward.step = TRUE) #cambiar 14
 
 # SHOW CUT POINTS OF MARS
 cuts <- mars.fit$cuts[mars.fit$selected.terms, ];
-dimnames(cuts) <- list(NULL, names(train)[-14]); #cambiar 14
+dimnames(cuts) <- list(NULL, names(train)[-16]); #cambiar 14
 print(cuts);
 
 factor <- mars.fit$factor[mars.fit$selected.terms, ];
