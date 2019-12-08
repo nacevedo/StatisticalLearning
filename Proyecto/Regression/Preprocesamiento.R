@@ -1,8 +1,17 @@
+library(corrplot)
 library(readr)
 Train_FIFA <- read_delim("Train_FIFA.csv", 
                          ";", escape_double = FALSE, trim_ws = TRUE)
 Test_FIFA <- read_delim("Test_FIFA.csv", 
                         ";", escape_double = FALSE, trim_ws = TRUE)
+data = read_delim("data.csv", 
+                  ",", escape_double = FALSE, trim_ws = TRUE)
+
+data$X1 = NULL
+data$X81 = NULL
+data$X82 = NULL
+
+Train_FIFA = data
 
 # Preprocesamiento
 
@@ -56,14 +65,14 @@ b = a
 millionk <- function(x) {
   ifelse((str_sub(x,-1,-1) == 'M' ), 10^6*as.numeric(gsub("M", "", x)),
          ifelse((str_sub(x,-1,-1) == 'K'),    
-                 10^3*as.numeric(gsub("K", "", x))))
+                 10^3*as.numeric(gsub("K", "", x)), as.numeric(x)))
 }
 
 
 Train_FIFA$`Release Clause` = as.vector(sapply(Train_FIFA$`Release Clause`, function(x) sapply(x, millionk)))
 Test_FIFA$`Release Clause` = as.vector(sapply(Test_FIFA$`Release Clause`, function(x) sapply(x, millionk)))
 
-
+Train_FIFA$Wage = as.vector(sapply(Train_FIFA$Wage, function(x) sapply(x, millionk)))
 
 
 # Tipos ----
@@ -203,11 +212,13 @@ barplot(prop.table(table(Train_FIFA$`Body Type`)), main = 'Body Type')
 
 table(Test_FIFA$`Body Type`)
 
+
 # De pronto quitar estos
 Train_FIFA[which(Train_FIFA$`Body Type`== 'Shaqiri'),10] = 'Stocky'
 Train_FIFA[which(Train_FIFA$`Body Type`== 'PLAYER_BODY_TYPE_25'),10] = 'Normal'
 
-  
+Train_FIFA$`Body Type` = NULL
+Test_FIFA$`Body Type` = NULL  
 
 
 # Position
@@ -376,7 +387,7 @@ s = c('Crossing',	'Finishing',	'HeadingAccuracy',	'ShortPassing',	'Volleys',	'Dr
       'StandingTackle',	'SlidingTackle')
 otros_skills = Train_FIFA[s]
 varianza = cor(na.omit(otros_skills))
-corrplot(varianza, type="upper", order="hclust", tl.col="black", tl.srt=45)
+corrplot::corrplot(varianza, type="upper", order="hclust", tl.col="black", tl.srt=45)
 
 s3 = c("Acceleration","SprintSpeed","Agility","Balance")
 s4 = c("Penalties","ShotPower","LongShots","Volleys","Finishing",
@@ -414,7 +425,7 @@ numeric_names = names(Filter(is.numeric, Train_FIFA))
 numericas = Train_FIFA[numeric_names]
 varianza = cor(na.omit(numericas))
 
-corrplot(varianza, type="upper", order="hclust", tl.col="black", tl.srt=45)
+corrplot::corrplot(varianza, type="upper", order="hclust", tl.col="black", tl.srt=45)
 
 
 s15 = c("Skills1","Skills5")
@@ -442,7 +453,7 @@ numericas = Train_FIFA[numeric_names]
 numericas$Wage = NULL
 varianza = cor(na.omit(numericas))
 
-corrplot(varianza, type="upper", order="hclust", tl.col="black", tl.srt=45)
+corrplot::corrplot(varianza, type="upper", order="hclust", tl.col="black", tl.srt=45)
 
 #pairs(numericas)
 
@@ -527,7 +538,8 @@ x = scale(x, center = FALSE, scale = TRUE)
 outlier.scores <- lofactor(x, k=5) ## CUÁNTOS VECINOS USAR??
 
 # pick top 5 as outliers
-outliers <- order(outlier.scores, decreasing=T)[1:round(0.003*nrow(x))]
+outliers <- order(outlier.scores, decreasing=T)[1:20]
+#round(0.003*nrow(x))
 labels <- 1:length(outlier.scores)
 labels[-outliers] <- "."
 biplot(prcomp(x), cex=.8, xlabs=labels, na.rm = TRUE)
@@ -542,51 +554,76 @@ Train = Train[-outliers,]
 
 ################ MUCHAS PRUEBAS PARA QUE SIRVIERAN LOS DATOS #############
 
-
-
 train = Train
 test = Test
 
-fn = names(Filter(is.factor, Train))
+#train$Wage[train$Wage == 0] = NA
+#train = na.omit(train)
 
-train = sapply(train, as.numeric)
-train = as.data.frame(train)
+train$Club = NULL
+test$Club = NULL
 
-train$Club = as.factor(train$Club)
-train$`Preferred Foot` = as.factor(train$`Preferred Foot`)
-train$`Body Type` = as.factor(train$`Body Type`)
-train$`Work Rate` = as.factor(train$`Work Rate`)
-train$Position = as.factor(train$Position)
+fn = names(Filter(is.factor, train))
 
-test = sapply(test, as.numeric)
-test = as.data.frame(test)
-
-test$Club = as.factor(test$Club)
-test$`Preferred Foot` = as.factor(test$`Preferred Foot`)
-test$`Body Type` = as.factor(test$`Body Type`)
-test$`Work Rate` = as.factor(test$`Work Rate`)
-test$Position = as.factor(test$Position)
+# train = sapply(train, as.numeric)
+# train = as.data.frame(train)
+# 
+# train$`Preferred Foot` = as.factor(train$`Preferred Foot`)
+# train$`Work Rate` = as.factor(train$`Work Rate`)
+# train$Position = as.factor(train$Position)
+# 
+# test = sapply(test, as.numeric)
+# test = as.data.frame(test)
+# 
+# test$`Preferred Foot` = as.factor(test$`Preferred Foot`)
+# test$`Work Rate` = as.factor(test$`Work Rate`)
+# test$Position = as.factor(test$Position)
 
 todos = rbind(train,test)
 
-todos$Club = as.factor(todos$Club)
 todos$`Preferred Foot` = as.factor(todos$`Preferred Foot`)
-todos$`Body Type` = as.factor(todos$`Body Type`)
 todos$`Work Rate` = as.factor(todos$`Work Rate`)
 todos$Position = as.factor(todos$Position)
 
-todos$Wage = NULL
+names(todos)[names(todos) == "Preferred Foot"] <- "PreferredFoot"
+names(todos)[names(todos) == "International Reputation"] <- "InternationalReputation"
+names(todos)[names(todos) == "Weak Foot"] <- "WeakFoot"
+names(todos)[names(todos) == "Skill Moves"] <- "SkillMoves"
+names(todos)[names(todos) == "Work Rate"] <- "WorkRate"
+
+#train = todos[1:7833,]
+#test = todos[7834:9833,]
+
+train = todos[1:18127,]
+test = todos[18128:20127,]
+
+
+########## STOP ###########
 
 library(dummies)
 
 new_todos <- dummy.data.frame(todos, sep = ".")
 names(new_todos)
 
-x_train = new_todos[1:7947,]
-x_test = new_todos[7948:9947,]
+new_todos$Wage = NULL
+
+x_train = new_todos[1:7833,]
+x_test = new_todos[7834:9833,]
+
+################# Faltantes Test ################# 
 
 xxx = test
 xxx$Wage = NULL
 sum(is.na(train))
 sum(is.na(test))
 aggr(xxx,prop=F,numbers=T)
+
+marginplot(xxx[c("Position","Work Rate")],alpha = 0.8, 
+           col = c(1:3))
+
+marginplot(xxx[c("Position","Weak Foot")],alpha = 0.8, 
+           col = c(1:3))
+
+
+
+
