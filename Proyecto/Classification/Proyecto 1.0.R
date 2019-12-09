@@ -44,7 +44,7 @@ index = c(901:1065)
 df = cbind(index,prediccion)
 colnames(df) = c("Id","Predicted")
 
-write.csv(df,file="submission1.csv", row.names = F)
+#write.csv(df,file="submission1.csv", row.names = F)
 
 ########################### LDA ########################### 
 library(klaR)
@@ -55,7 +55,7 @@ lda_for
 summary(lda_for)
 lda_for$formula
 
-lda_b = lda(Revenue ~ ProductRelated_Duration + PageValues + MonthFeb + TrafficType8, data = train_xxs[,-1])
+lda_b = lda(Revenue ~ PageValues, data = train_xxs[,-1])
 lda_b #Ws
 
 predl_b = predict(lda_b,newdata=test_xxs[,c(-1,-56)])$class
@@ -63,7 +63,7 @@ predl_b = predict(lda_b,newdata=test_xxs[,c(-1,-56)])$class
 df = cbind(index,predl_b)
 colnames(df) = c("Id","Predicted")
 
-write.csv(df,file="submission2.csv", row.names = F)
+#write.csv(df,file="submission2.csv", row.names = F)
 
 ########################### Random Forest ########################### 
 library(randomForest)
@@ -82,7 +82,7 @@ pred_rf[pred_rf <= 0] = 0
 df = cbind(index,pred_rf)
 colnames(df) = c("Id","Predicted")
 
-write.csv(df,file="submission3.csv", row.names = F)
+#write.csv(df,file="submission3.csv", row.names = F)
 
 ########################### xgboost ########################### 
 library(xgboost)
@@ -118,3 +118,4 @@ df = cbind(index,pred_boo)
 colnames(df) = c("Id","Predicted")
 
 #write.csv(df,file="submission5.csv", row.names = F)
+

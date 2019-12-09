@@ -4,8 +4,8 @@ library(dummies)
 library(corrplot)
 library(cluster)
 
+library(dplyr)
 library(randomForest)
-library(tree)
 library(pROC)
 library(gbm)
 library(caret)
@@ -204,12 +204,11 @@ plot(ceros)
 
 # test_fin = prep_fin[901:1065,]
 # train_fin = prep_fin[1:900,]
-
+par(mfrow = c(1, 1))
 # Correlaciones para las variables no dummies
 vc = cor(prep_fin[,1:10])
-corrplot(vc,method="circle")
+corrplot::corrplot(vc,method="circle")
 
-prep_xxs = scale(prep_fin, center=F) 
 
 #DATA FINAL 
 
@@ -267,56 +266,4 @@ plot(newData[, 1], newData[, 2], pch = 19 + as.integer(newData[,3]),
 table(newData$Revenue)
 
 Train_final = newData
-
-# names_dummies = c("Browser","TrafficType", "Region","VisitorType", "OperatingSystems", "Weekend")
-# newData = dummy.data.frame(newData, names = names_dummies, dummy.classes = getOption("dummy.classes"))
-# Test = dummy.data.frame(Test, names = names_dummies, dummy.classes = getOption("dummy.classes"))
-
-
-##### Seleccion de variables #######
-
-# Componentes principales
-library(leaps)
-pp = prcomp(newData[,-ncol(newData)],scale = TRUE)
-
-plot(pp, type = "l")
-plot(pp$sdev^2)
-
-sum = summary(pp)[6]
-importancia = sum$importance[3,]
-
-plot(importancia,xaxt="n", ylim = c(0,1), type = 'l')
-points(importancia)
-
-plot(importancia[30:51],xaxt="n", type = 'l')
-axis(1,at=1:22,labels=names(importancia[30:51]))
-points(importancia[30:51])
-importancia[41]
-# Escogemos 41 componentes
-# Explica el 98.75% de la varianza
-
-
-zz = pp$x
-train_comps = data.frame(cbind(zz,newData$Revenue))
-columnas_solo_train = setdiff(colnames(newData), colnames(Test)) # newData, pero no test
-
-columnas_solo_test = setdiff(colnames(Test),colnames(newData))
-Test[columnas_solo_train] = 0
-Test[columnas_solo_test] = NULL
-
-
-x_Test = Test
-x_Test$Revenue = NULL
-scale_test = sweep(sweep(x_Test, MARGIN = 2, FUN = "-", STATS = pp$center), MARGIN = 2, FUN = "/", STATS = pp$scale)
-scale_test = as.matrix(scale_test)
-weights = matrix(cbind(pp$rotation[,1:41]), ncol = 41)
-
-pp_test <- (scale_test %*% weights)
-
-Train_final = data.frame(cbind(train_comps[,1:41],'Revenue' = newData$Revenue))
-
-
-Test_final = pp_test
-
-
 
